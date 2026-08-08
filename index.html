@@ -64,22 +64,6 @@ main{padding:16px 18px 40px;display:flex;flex-direction:column;gap:14px}
 #gridwrap .cell{min-width:0}
 #gridwrap .cell .nm{font-size:10.5px}
 #gridwrap .cell .vl{font-size:14px;padding:3px 2px 4px}
-/* 시도 17개 — 첫 화면. 시군구 155개를 한꺼번에 보여주지 않고, 큰 카드 17개만 먼저 보여준다 */
-#sidogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
-.stile{border:1px solid #9aa4b2;border-radius:8px;overflow:hidden;cursor:pointer;background:#fff;
- transition:transform .1s}
-.stile:hover{transform:translateY(-2px);box-shadow:0 3px 10px rgba(0,0,0,.15)}
-.stile .snm{font-size:14px;font-weight:700;padding:9px 10px 2px;color:#222}
-.stile .sval{font-size:26px;font-weight:700;padding:2px 10px 4px;font-variant-numeric:tabular-nums}
-.stile .ssub{font-size:11px;padding:0 10px;opacity:.75;font-variant-numeric:tabular-nums}
-.stile .scnt{font-size:10.5px;padding:6px 10px 9px;opacity:.6}
-.backbar{padding:8px 0 2px}
-.backbar.hide{display:none!important}
-.backbtn{border:1px solid var(--bd);background:#fff;border-radius:5px;padding:6px 12px;
- font:inherit;font-size:12.5px;cursor:pointer;color:#2f5f9e;font-weight:700}
-.backbtn:hover{background:#eef2f8}
-body.at-sido .onlyregion{display:none!important}
-#sidoview.hide{display:none!important}
 /* 지도+막대 나란히 배치 */
 .combogrid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:14px;align-items:start}
 @media (max-width:1100px){ .combogrid{grid-template-columns:1fr} }
@@ -200,8 +184,6 @@ select.sidosel{border:1px solid var(--bd);border-radius:14px;padding:3px 9px;
   footer{padding:0 12px 26px}
   .brow{grid-template-columns:72px 1fr 48px;gap:5px}
   .brow .bn{font-size:11px} .brow .bv{font-size:11px}
-  #sidogrid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
-  .stile .sval{font-size:21px} .stile .snm{font-size:12.5px}
   .headline{font-size:12px;padding:8px 10px}
 }
 </style>
@@ -247,16 +229,6 @@ select.sidosel{border:1px solid var(--bd);border-radius:14px;padding:3px 9px;
 </div>
 <div class="chipbar onlyregion" id="chips"></div>
 <main>
- <div id="sidoview">
-  <div class="panel"><h2 id="sidotitle"></h2>
-   <div id="sidohead" class="headline"></div>
-   <div id="sidogrid"></div>
-   <div id="sidolegend" class="legend" style="margin-top:10px"></div>
-   <div class="note" style="margin-top:8px">카드를 클릭하면 그 시도의 지도+막대가 나옵니다(핵심·격자·표로도 바꿔볼 수 있음). 많이 움직인 시도부터 위에 옵니다.</div></div>
- </div>
- <div class="backbar onlyregion hide" id="backbar">
-  <button class="backbtn" id="backbtn">‹ 전체 시도로</button>
- </div>
  <div id="regionview" class="onlyregion">
  <div id="regheadline" class="headline"></div>
  <div id="topview" class="panel hide"><h2 id="toptitle"></h2>
@@ -302,7 +274,8 @@ select.sidosel{border:1px solid var(--bd);border-radius:14px;padding:3px 9px;
 <script>
 var D = window.__KB__;
 var N = D.dates.length;
-var st = { level:'sido', metric:'m', period:1, scale:'fixed', view:'combo', region:'수도권', sel:null, q:'', pro:false };
+/* 첫 화면부터 전국 지도(시도 17개 미니지도 모자이크)+막대 — 카드 그리드 중간 단계 없이 바로 지도로. */
+var st = { metric:'m', period:1, scale:'fixed', view:'combo', region:'전국', sel:null, q:'', pro:false };
 var THRESH = {1:0.80, 4:2.13, 13:5.33, 26:9.33, 52:16.00};
 var METRIC_LBL = {m:'매매', j:'전세', g:'매매−전세 격차'};
 var PERIOD_LBL = {1:'1주', 4:'4주', 13:'13주(3개월)', 26:'26주(6개월)', 52:'52주(1년)'};
@@ -812,40 +785,6 @@ function renderGrid(){
     + '면적 큰 시군구가 시선을 끌던 문제와 라벨 겹침이 없습니다. 색 기준은 지도와 동일.';
 }
 
-/* ── 1단계: 시도 17개 카드 — 알파벳·지리 순이 아니라 많이 움직인 순으로 정렬한다.
-   읽는 순서 자체가 랭킹이 되게 하는 것 — 인포그래픽에서 가장 값싸고 효과 큰 장치. ── */
-function sidoTileHTML(name, rank, total){
-  var c = SIDOCOL[name], r = c!=null ? D.regions[c] : null;
-  if(!r) return '<div class="stile" style="cursor:default;opacity:.5"><div class="snm">'+name+'</div>'
-    + '<div class="ssub">확인 불가</div></div>';
-  var v = val(r, st.metric, st.period), t = tone(v), sub;
-  if(st.metric==='g') sub = '매'+fmt(val(r,'m',st.period))+' 전'+fmt(val(r,'j',st.period));
-  else if(st.metric==='m') sub = '전 '+fmt(val(r,'j',st.period));
-  else sub = '매 '+fmt(val(r,'m',st.period));
-  var cnt = 0; D.geo.kb.forEach(function(f){ if(f.sido===name) cnt++ });
-  var badge = (v!=null && rank!=null) ? (rank<3 ? '▲' : (rank>=total-3 ? '▼' : '')) : '';
-  return '<div class="stile" data-sido="'+name+'" style="background:'+t.bg+';color:'+t.fg+'">'
-    + '<div class="snm">'+(badge?badge+' ':'')+name+'</div>'
-    + '<div class="sval">'+fmt(v)+'</div>'
-    + '<div class="ssub">'+sub+'</div>'
-    + '<div class="scnt">'+(cnt?cnt+'개 시군구 ›':'')+'</div></div>';
-}
-function renderSidoGrid(){
-  var items = SIDO17.map(function(nm){ var c=SIDOCOL[nm], r=c!=null?D.regions[c]:null;
-    return { nm:nm, v: r ? val(r, st.metric, st.period) : null } });
-  items.sort(function(a,b){
-    if(a.v==null && b.v==null) return 0;
-    if(a.v==null) return 1; if(b.v==null) return -1;
-    return b.v - a.v;
-  });
-  var n = items.length;
-  document.getElementById('sidogrid').innerHTML = items.map(function(it,i){
-    return sidoTileHTML(it.nm, i, n) }).join('');
-  document.getElementById('sidohead').innerHTML =
-    headlineHTML(items.map(function(it){ return {n:it.nm, v:it.v} }), '전국');
-  document.getElementById('sidotitle').textContent = '시도별 — ' + METRIC_LBL[st.metric]
-    + ' ' + PERIOD_LBL[st.period] + ' 변동률(%)  ·  많이 움직인 순  ·  카드를 클릭하면 시군구로';
-}
 
 /* ── 요약 박스 ── */
 function cellHTML(col){
@@ -1064,12 +1003,6 @@ function hideTip(){ if(tip) tip.style.display='none' }
 
 function render(){
   computeAuto();
-  document.body.classList.toggle('at-sido', st.level==='sido');
-  document.getElementById('sidoview').classList.toggle('hide', st.level==='region');
-  document.getElementById('backbar').classList.toggle('hide', st.level!=='region');
-  renderSidoGrid();   // 지표·기간은 두 단계 공통이라 항상 최신값으로 갱신(뒤로 갔을 때도 갱신돼 있게)
-  document.getElementById('sidolegend').innerHTML = legendHTML();
-  if(st.level!=='region'){ writeHash(); return }
   document.getElementById('chips').innerHTML = chipsHTML();
   document.getElementById('legend').innerHTML = legendHTML();
   renderRegHeadline();
@@ -1101,8 +1034,7 @@ function render(){
   writeHash();
 }
 
-/* ── URL 해시로 상태 공유 (#단계=지역&지역=서울&지표=j&기간=13&보기=지도) ──
-   단계 생략(또는 시도) = 첫 화면. 지역이 있으면 그 시도로 드릴다운된 상태로 연다. */
+/* ── URL 해시로 상태 공유 (#지역=서울&지표=j&기간=13&보기=지도막대) — 생략 시 전국(첫 화면) ── */
 function readHash(){
   var h = decodeURIComponent(location.hash.replace(/^#/,''));
   if(!h) return false;
@@ -1110,8 +1042,7 @@ function readHash(){
   h.split('&').forEach(function(kv){
     var p = kv.split('='), k = p[0], v = p[1];
     if(v==null) return;
-    if(k==='단계' && (v==='시도'||v==='지역')){ st.level = v==='지역'?'region':'sido'; got=true }
-    else if(k==='지역' && D.geo.views[v]){ st.region=v; st.level='region'; got=true }
+    if(k==='지역' && D.geo.views[v]){ st.region=v; got=true }
     else if(k==='지표' && ['m','j','g'].indexOf(v)>=0){ st.metric=v; got=true }
     else if(k==='기간' && THRESH[+v]){ st.period=+v; got=true }
     else if(k==='보기' && (v==='핵심'||v==='지도막대'||v==='격자'||v==='순위표')){
@@ -1122,7 +1053,7 @@ function readHash(){
 }
 function viewLbl(){ return st.view==='top'?'핵심':(st.view==='combo'?'지도막대':(st.view==='grid'?'격자':'순위표')) }
 function writeHash(){
-  var h = '단계='+(st.level==='region'?'지역':'시도')+'&지역='+st.region+'&지표='+st.metric+'&기간='+st.period
+  var h = '지역='+st.region+'&지표='+st.metric+'&기간='+st.period
         + '&보기='+viewLbl()+'&색상='+(st.scale==='fixed'?'고정':'자동');
   history.replaceState(null, '', '#'+h);
 }
@@ -1169,16 +1100,6 @@ document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('chips').addEventListener('change', function(e){
     if(e.target.id==='moresel') gotoRegion(e.target.value);
   });
-  // 시도 카드 클릭 → 그 시도로 드릴다운(지도+막대가 기본)
-  document.getElementById('sidogrid').addEventListener('click', function(e){
-    var t=e.target.closest('[data-sido]'); if(!t) return;
-    st.level='region'; st.region=t.dataset.sido; st.view='combo';
-    syncButtons(); render();
-    document.getElementById('backbar').scrollIntoView({block:'nearest'});
-  });
-  document.getElementById('backbtn').onclick = function(){
-    st.level='sido'; st.sel=null; render();
-  };
   // 간단 ↔ 자세히
   var pb = document.getElementById('protoggle');
   pb.onclick = function(){
@@ -1193,7 +1114,15 @@ document.addEventListener('DOMContentLoaded', function(){
   };
   document.getElementById('q').oninput = function(){ st.q=this.value.trim(); render() };
   document.body.addEventListener('click', function(e){
-    var t=e.target.closest('[data-c]'); if(t) openDrawer(+t.dataset.c);
+    var t=e.target.closest('[data-c]'); if(!t) return;
+    // 전국을 보는 중에 지도(단일지도·모자이크 미니지도 모두)를 클릭하면 그 시도로 드릴다운.
+    // 이미 특정 지역을 보고 있으면(경기 등) 클릭은 원래대로 상세 패널을 연다.
+    var onMap = !!e.target.closest('#msvg, #isvg, .minisvg');
+    if(onMap && st.region==='전국'){
+      var f = D.geo.kb.find(function(x){ return x.c===+t.dataset.c });
+      if(f && D.geo.views[f.sido]){ st.region=f.sido; st.sel=null; syncButtons(); render(); return }
+    }
+    openDrawer(+t.dataset.c);
   });
   document.body.addEventListener('mousemove', function(e){
     var t=e.target.closest('#msvg [data-c], #isvg [data-c], .cell[data-c], .brow[data-c], .topcard[data-c]');
