@@ -59,79 +59,12 @@ main{padding:16px 18px 40px;display:flex;flex-direction:column;gap:14px}
 #isvg path{cursor:pointer}
 #ilabels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 @media (max-width:820px){ #inset{display:none!important} }
-/* 격자(카토그램) — 면적 왜곡을 없애고 위치만 대략 유지한 동일 크기 칸 */
-#gridwrap{display:grid;gap:3px;overflow-x:auto}
-#gridwrap .cell{min-width:0}
-#gridwrap .cell .nm{font-size:10.5px}
-#gridwrap .cell .vl{font-size:14px;padding:3px 2px 4px}
-/* 지도+막대 나란히 배치 */
-.combogrid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:14px;align-items:start}
-@media (max-width:1100px){ .combogrid{grid-template-columns:1fr} }
-.combomap,.combobar{margin-top:0!important}
-/* 전국 모자이크 — 시도 17개를 각자 통째로 라벨링된 미니지도로. 통짜 지도 하나보다
-   극단화·면적왜곡 문제가 적다(시도 안에서는 시군구 수가 적어 다 라벨링해도 안 겹친다) */
-#mosaic{display:grid;gap:6px}
-#mosaic.hide{display:none!important}
-.minicell{background:#fff;border:1px solid var(--bd);border-radius:6px;overflow:hidden;
- display:flex;flex-direction:column;min-height:100px}
-.minihd{font-size:10.5px;font-weight:800;text-align:center;padding:3px 2px;
- background:#eef1f6;border-bottom:1px solid var(--bd)}
-.miniwrap{position:relative;flex:1;min-height:80px}
-.minisvg{display:block;width:100%;height:100%}
-.minisvg path{cursor:pointer}
-.minilabels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.minilabels .lab{text-shadow:0 0 2px #fff,0 0 2px #fff}
-.minilabels .lab .ln{font-size:8.5px!important}
-.minilabels .lab .lv{font-size:9.5px!important}
-/* 헤드라인 — 카드·지도를 보기 전에 결론부터 한 문장으로. 인포그래픽의 기본: 숫자 나열보다 문장이 먼저 읽힌다 */
-.headline{font-size:13.5px;color:#28324a;background:#eef3fb;border:1px solid #d7e3f5;
- border-radius:7px;padding:9px 13px;margin-bottom:11px;line-height:1.6}
-.headline b{font-weight:800}
-/* 핵심(TOP5) — 진짜 기본 화면. 39~155개를 다 늘어놓지 않고 극단 5+5만, 스크롤 없이 */
-#topgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.topcol .colhd{font-size:12.5px;font-weight:800;padding:2px 2px 8px;color:#39424f}
-.topcard{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:7px;margin-bottom:5px;cursor:pointer}
-.topcard:hover{filter:brightness(0.97)}
-.topcard .trank{font-size:12px;font-weight:800;opacity:.45;width:14px;text-align:center}
-.topcard .tnm{flex:1;font-size:13.5px;font-weight:700}
-.topcard .tvv{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
-#topdowncol.hide{display:none!important}
-#toprest{font-size:12px;color:var(--mut);margin-top:6px;text-align:center}
-#toprest a{color:#2f5f9e;cursor:pointer;text-decoration:underline}
-@media (max-width:820px){ #topgrid{grid-template-columns:1fr} }
-/* 전체 랭킹(발산 막대) — TOP5로도 부족할 때 보는 상세. 정렬돼 있어 극단값이 항상 맨 위/맨 아래에 온다 */
-#barwrap{display:flex;flex-direction:column;gap:1px;max-height:74vh;overflow-y:auto}
-.brow{display:grid;grid-template-columns:104px 1fr 58px;align-items:center;gap:8px;
- cursor:pointer;padding:3px 2px;border-radius:4px}
-.brow:hover{background:#f4f7fb}
-.brow .bn{font-size:12px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#33404f}
-.brow .btrack{position:relative;height:15px;background:#eef1f6;border-radius:3px}
-.brow .bfill{position:absolute;top:1px;bottom:1px;border-radius:2px;min-width:1px}
-.brow .bv{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
-.brow.top .bn{font-weight:800;color:#a5450a}
-.brow.bot .bn{font-weight:800;color:#1c4a8f}
-.brow.top .bn::before{content:'▲ '}
-.brow.bot .bn::before{content:'▼ '}
 .legend{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:11.5px;
  background:#fff;border:1px solid var(--bd);border-radius:7px;padding:9px 14px}
 .lg{display:flex;align-items:center;gap:5px}
 .sw{width:22px;height:13px;border:1px solid #9aa4b2;display:inline-block;border-radius:2px}
 .sw2{width:26px;height:12px;border:1px solid #b6bdc7;display:inline-block;margin:0 -1px}
 .legend{gap:5px}
-.sumgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cw),1fr));gap:3px}
-.cell{border:1px solid #9aa4b2;border-radius:3px;overflow:hidden;cursor:pointer;background:#fff}
-.cell:hover{box-shadow:0 0 0 2px #2f5f9e}
-.cell .nm{font-size:11px;font-weight:700;text-align:center;padding:3px 2px 2px;color:#222;
- white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-bottom:1px solid rgba(0,0,0,.12)}
-.cell .vl{text-align:center;padding:4px 2px 5px;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
-.cell .sub{text-align:center;font-size:9.5px;padding-bottom:3px;opacity:.75;font-variant-numeric:tabular-nums}
-table{border-collapse:collapse;width:100%;font-size:12px}
-th,td{border:1px solid #dfe3ea;padding:4px 7px;text-align:right;font-variant-numeric:tabular-nums}
-th{background:#eef1f6;cursor:pointer;white-space:nowrap;position:sticky;top:0}
-th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
-tbody tr{cursor:pointer}
-tbody tr:hover{background:#f4f7fb}
-#rank{max-height:70vh;overflow:auto}
 #drawer{position:fixed;right:0;top:0;height:100vh;width:400px;max-width:92vw;background:#fff;
  border-left:1px solid var(--bd);box-shadow:-4px 0 18px rgba(0,0,0,.13);z-index:60;
  transform:translateX(102%);transition:transform .18s;overflow-y:auto;padding:16px 18px 40px}
@@ -182,9 +115,6 @@ select.sidosel{border:1px solid var(--bd);border-radius:14px;padding:3px 9px;
   #drawer{width:100%;padding:14px 14px 40px}
   .mobilehint{display:block}
   footer{padding:0 12px 26px}
-  .brow{grid-template-columns:72px 1fr 48px;gap:5px}
-  .brow .bn{font-size:11px} .brow .bv{font-size:11px}
-  .headline{font-size:12px;padding:8px 10px}
 }
 </style>
 <header>
@@ -205,65 +135,11 @@ select.sidosel{border:1px solid var(--bd);border-radius:14px;padding:3px 9px;
   </div>
  </details>
 </header>
-<div class="bar">
- <div class="grp"><div class="seg">
-  <button data-g="metric" data-v="m" aria-pressed="true">매매</button>
-  <button data-g="metric" data-v="j" aria-pressed="false">전세</button>
-  <button class="adv" data-g="metric" data-v="g" aria-pressed="false">매매−전세</button></div></div>
- <div class="grp"><div class="seg">
-  <button data-g="period" data-v="1" aria-pressed="true">1주</button>
-  <button class="adv" data-g="period" data-v="4" aria-pressed="false">4주</button>
-  <button data-g="period" data-v="13" aria-pressed="false">3개월</button>
-  <button class="adv" data-g="period" data-v="26" aria-pressed="false">6개월</button>
-  <button data-g="period" data-v="52" aria-pressed="false">1년</button></div></div>
- <div class="grp onlyregion"><div class="seg">
-  <button data-g="view" data-v="combo" aria-pressed="true" title="지도(위치)와 막대(수치)를 한 화면에">지도+막대</button>
-  <button data-g="view" data-v="top" aria-pressed="false" title="스크롤 없이 한 화면에 — 가장 많이 움직인 5+5곳만">핵심</button>
-  <button data-g="view" data-v="grid" aria-pressed="false" title="칸 크기를 모두 같게 — 면적 왜곡·라벨 겹침 없음">격자</button>
-  <button data-g="view" data-v="rank" aria-pressed="false">표로 보기</button></div></div>
- <div class="grp adv onlyregion"><b>색상</b><div class="seg">
-  <button data-g="scale" data-v="fixed" aria-pressed="true">고정</button>
-  <button data-g="scale" data-v="auto" aria-pressed="false">자동(분위)</button></div></div>
- <div class="grp adv onlyregion"><input type="search" id="q" placeholder="지역 검색 (예: 분당)"></div>
- <button id="protoggle" class="ghost" title="고급 옵션 표시/숨김">＋ 옵션 더보기</button>
-</div>
-<div class="chipbar onlyregion" id="chips"></div>
 <main>
- <div id="regionview" class="onlyregion">
- <div id="regheadline" class="headline"></div>
- <div id="topview" class="panel hide"><h2 id="toptitle"></h2>
-  <div class="note" style="margin:-4px 0 8px">정확한 수치·순위는 여기(핵심·막대)서 확인하세요 — <b>위치가 궁금하면 지도</b>로.</div>
-  <div id="topgrid">
-   <div class="topcol"><div class="colhd">🔺 가장 많이 오른 5곳</div><div id="topup"></div></div>
-   <div class="topcol" id="topdowncol"><div class="colhd">🔻 가장 많이 내린 5곳</div><div id="topdown"></div></div>
-  </div>
-  <div id="toprest"></div></div>
- <div id="comboview">
-  <div class="combogrid">
-   <div class="panel combomap"><h2 id="mtitle"></h2>
-    <div class="note" style="margin:-4px 0 8px"><b>위치 확인용</b> — 정확한 수치·순위는 오른쪽 막대에서 보세요.</div>
-    <div class="mapwrap" id="mapwrap"></div>
-    <div id="mosaic" class="hide"></div>
-    <div id="legend" class="legend"></div>
-    <div class="note" id="labnote"></div></div>
-   <div class="panel combobar"><h2 id="btitle"></h2>
-    <div class="note" style="margin:-4px 0 8px">정확한 수치·순위는 여기서 — <b>위치가 궁금하면 왼쪽 지도</b>로.</div>
-    <div id="barwrap"></div>
-    <div id="barlegend" class="legend" style="margin-top:10px"></div>
-    <div class="note" style="margin-top:8px">막대 길이 = 변동폭 크기(방향 무관) · 색 = 상승(주황)·하락(파랑). 맨 위가 가장 많이 오른 곳, 맨 아래가 가장 많이 내린 곳.</div></div>
-  </div>
-  <div class="panel adv" style="margin-top:14px"><b style="font-size:12px">수도권 권역 요약</b>
-   <div id="capsum" class="sumgrid" style="margin-top:6px"></div>
-   <b style="font-size:12px;display:block;margin-top:14px">전국 · 시도 요약</b>
-   <div id="locsum" class="sumgrid" style="margin-top:6px"></div></div>
- </div>
- <div id="gridview" class="panel hide"><h2 id="gtitle"></h2>
-  <div id="gridwrap"></div>
-  <div class="note" id="gnote" style="margin-top:8px"></div></div>
- <div id="rankview" class="panel hide"><div id="rank"></div>
-  <div class="note">머리글 클릭 = 정렬 · 행 클릭 = 상세. 지도에 그려지는 155개 시군구 단위.</div></div>
- <div class="note" id="caption" style="padding:0 4px"></div>
- </div>
+ <div class="panel"><h2 id="mtitle"></h2>
+  <div class="mapwrap" id="mapwrap"></div>
+  <div id="legend" class="legend"></div>
+  <div class="note" id="labnote"></div></div>
 </main>
 <div id="drawer"></div>
 <footer>
@@ -274,18 +150,11 @@ select.sidosel{border:1px solid var(--bd);border-radius:14px;padding:3px 9px;
 <script>
 var D = window.__KB__;
 var N = D.dates.length;
-/* 첫 화면부터 전국 지도(시도 17개 미니지도 모자이크)+막대 — 카드 그리드 중간 단계 없이 바로 지도로. */
-var st = { metric:'m', period:1, scale:'fixed', view:'combo', region:'전국', sel:null, q:'', pro:false };
+/* 첫 화면 = 전국 지도 하나뿐 — 매매·1주 고정, 클릭하면 그 시군구 매매·전세 추이 차트. */
+var st = { metric:'m', period:1, region:'전국', sel:null, q:'' };
 var THRESH = {1:0.80, 4:2.13, 13:5.33, 26:9.33, 52:16.00};
 var METRIC_LBL = {m:'매매', j:'전세', g:'매매−전세 격차'};
 var PERIOD_LBL = {1:'1주', 4:'4주', 13:'13주(3개월)', 26:'26주(6개월)', 52:'52주(1년)'};
-var GORDER = ['수도권','서울','인천','경기','부산','대구','광주','대전','울산','세종',
-              '강원','충북','충남','전북','전남','경북','경남','제주','전국'];
-/* 1단계 화면 — 시군구 155개를 한꺼번에 보여주지 않고 시도 17개 카드만 먼저 보여준다.
-   값은 시군구와 같은 D.regions[c]에서 가져온다(각 시도 "합계" 행의 열 번호 = SIDOCOL). */
-var SIDOCOL = D.sidoCols || {};
-var SIDO17 = ['서울','인천','경기','부산','대구','광주','대전','울산','세종',
-              '강원','충북','충남','전북','전남','경북','경남','제주'];
 /* 뷰에 속한 시도. 뷰의 bbox 안에 다른 시도가 들어오는 경우가 있어(수도권 박스 안 당진·천안 충남)
    bbox 클리핑만으로는 못 걸러진다 → 소속으로 판정해 뷰 밖 시군구는 색·라벨을 주지 않는다. */
 var VIEWSIDO = { 수도권:['서울','인천','경기'] };
@@ -297,10 +166,6 @@ function inView(f){
 /* 인셋(확대창)을 띄울 뷰와 담을 시도 — 면적이 작아 본 지도에서 뭉개지는 곳 */
 var INSET = { 전국:['서울','인천'], 수도권:['서울','인천'], 경기:['서울','인천'] };
 function insetSidos(){ return INSET[st.region] || null }
-var GCOLOR = {서울:'#dfe8f6',인천:'#dcefe9',경기:'#f3ebdd',부산:'#f8e0e6',대구:'#eaeedb',
-  광주:'#e8e1f2',대전:'#dfebf5',울산:'#f6e6d6',세종:'#e2f2dc',강원:'#e3eef6',충북:'#f0eddf',
-  충남:'#f5e9e2',전북:'#e4efe4',전남:'#ece7f3',경북:'#f6eedb',경남:'#e3ebf1',제주:'#f5e3ec',
-  전국:'#e9ecf1',수도권:'#e9ecf1'};
 
 /* ── 값 계산 ── */
 function pct(a,i0,i1){ if(!a) return null; var v0=a[i0], v1=a[i1];
@@ -320,29 +185,6 @@ function val(r, metric, period){
 }
 function fmt(v,d){ if(v==null||isNaN(v)) return '–'; d=d==null?2:d; return (v>0?'+':'')+v.toFixed(d) }
 
-var autoCut = null;
-function bands(){ if(st.scale==='auto'&&autoCut) return autoCut;
-  var T=THRESH[st.period]; return [T*0.25, T*0.50, T*0.75, T] }
-function computeAuto(){
-  var vs=[]; for(var k in D.regions){ var v=val(D.regions[k],st.metric,st.period);
-    if(v!=null) vs.push(Math.abs(v)) }
-  vs.sort(function(a,b){return a-b});
-  if(!vs.length){ autoCut=null; return }
-  function q(p){ return vs[Math.min(vs.length-1, Math.floor(vs.length*p))] }
-  autoCut=[q(0.20),q(0.50),q(0.75),q(0.92)];
-}
-var POS=['#ffffff','#FCD5B5','#FCCA3E','#FF9C19','#FF750D'];
-var NEG=['#ffffff','#DBEEF4','#A4BCE6','#678FD7','#2B68D5'];
-var FG =['#3b4553','#6b3a12','#5a4408','#4a2600','#ffffff'];
-var FGN=['#3b4553','#134152','#123a5c','#ffffff','#ffffff'];
-function level(v){ var b=bands(), a=Math.abs(v), lv=0;
-  for(var i=0;i<4;i++) if(a>=b[i]) lv=i+1; return lv }
-function tone(v){
-  if(v==null||isNaN(v)) return {bg:'#e6e9ee', fg:'#98a0ac'};
-  var lv=level(v);
-  if(lv===0) return {bg:'#ffffff', fg:'#3b4553'};
-  return v>0 ? {bg:POS[lv],fg:FG[lv]} : {bg:NEG[lv],fg:FGN[lv]};
-}
 
 /* ── 지도: 링 델타 디코드 → SVG path (y 반전) ── */
 var PATH = {}, CTXPATH = [];
@@ -369,18 +211,6 @@ function actR(c){
   var v = D.rt && D.rt.d[c]; if(!v || !v[1]) return 0;
   return Math.min(13, 2.4 + Math.sqrt(v[1]) * 1.15);
 }
-/* 이름표는 극단값(상·하위 3곳)에만 준다 — 155개를 다 라벨링하면 아무것도 안 보인다.
-   나머지는 색 + 원(활발도)만으로 보여주고, 궁금하면 클릭/호버로 확인하게 한다. */
-function mapExtremes(feats){
-  var vs = feats.map(function(f){ return { f:f, v: val(D.regions[f.c], st.metric, st.period) } })
-    .filter(function(x){ return x.v!=null }).sort(function(a,b){ return b.v-a.v });
-  var n = vs.length, K = n>12 ? 3 : 1;
-  var top = vs.slice(0,K), bot = n>K ? vs.slice(-K).reverse() : [];
-  var seen = {}, out = [];
-  top.concat(bot).forEach(function(x){ if(!seen[x.f.c]){ seen[x.f.c]=1; out.push(x.f) } });
-  return out;
-}
-
 function kbPathTags(pref){
   var s='';
   D.geo.kb.forEach(function(f){
@@ -433,7 +263,8 @@ function insetView(sidos){
 }
 function paintOne(map, f, v, dim, out){
   var p = map[f.c]; if(!p) return;
-  p.setAttribute('fill', out ? OUTFILL : tone(v).bg);
+  // 음영(그라데이션 색칠) 대신 숫자로 값을 보여준다 — 배경은 흰색 고정, 방향은 라벨 숫자 색으로만 구분
+  p.setAttribute('fill', out ? OUTFILL : '#ffffff');
   p.setAttribute('opacity', dim ? '0.25' : '1');
   p.setAttribute('stroke', (!out && st.sel==f.c) ? '#d97706' : (out ? OUTSTROKE : '#7d8794'));
   p.setAttribute('stroke-width', (!out && st.sel==f.c) ? '3' : '1');
@@ -458,7 +289,7 @@ function paintMap(){
   // 155개를 다 라벨링하는 대신 이걸로 "여기가 시장이 큰 곳"을 보여준다.
   var visible = D.geo.kb.filter(function(f){ return !off[f.c] });
   paintDots(visible, v0);
-  var hid = placeLabels(svgEl, labEl, v0, mapExtremes(main), false);
+  var hid = placeLabels(svgEl, labEl, v0, main, false);
 
   // 인셋 배치·표시
   var zoomBox = document.getElementById('zoombox');
@@ -489,9 +320,9 @@ function paintMap(){
 
   var el = document.getElementById('labnote');
   if(el){
-    var msg = ['이름표는 가장 많이 오른·내린 곳만 표시합니다. 원(●) 크기 = 최근 3개월 실거래 건수(활발한 시장일수록 큼) · 나머지는 색으로 보거나 클릭·호버로 확인하세요.'];
-    if(hid > 0) msg.push(hid+'개 라벨은 자리가 없어 생략됐습니다.');
-    if(outN > 0) msg.push('회색 = KB 미조사 시군구이거나 '+st.region+' 밖 지역(값을 주지 않습니다).');
+    var msg = ['숫자 = 변동률(%) · 주황 글씨 = 상승, 파랑 글씨 = 하락. 클릭하면 매매·전세 추이 그래프가 나옵니다.'];
+    if(hid > 0) msg.push(hid+'곳은 자리가 없어 숫자를 생략했습니다 — 클릭·호버로 확인하세요.');
+    if(outN > 0) msg.push('회색 = KB 미조사 시군구.');
     el.textContent = msg.join(' ');
   }
 }
@@ -517,55 +348,6 @@ function paintDots(feats, v){
       + 'stroke-width="'+(0.7/sc).toFixed(2)+'"></circle>';
   });
   dotsEl.innerHTML = html;
-}
-
-/* ══════════ 전국 모자이크 — 시도 17개를 각자 미니지도로 ══════════
-   통짜 전국 지도 하나 대신 시도별 작은 지도 17개를 지리 배치 그대로 늘어놓는다.
-   시도 하나 안에서는 시군구가 최대 39개(경기)뿐이라, 다 라벨링해도 안 겹친다 —
-   전국(155개)에서만 "극단값만 라벨"이 필요했던 것이지, 시도 단위에서는 필요 없다. */
-function sidoCentroids(){
-  var g = {};
-  D.geo.kb.forEach(function(f){
-    if(!g[f.sido]) g[f.sido] = {sx:0, sy:0, n:0};
-    g[f.sido].sx += f.cx; g[f.sido].sy += f.cy; g[f.sido].n++;
-  });
-  return SIDO17.filter(function(nm){ return g[nm] }).map(function(nm){
-    return { sido: nm, cx: g[nm].sx/g[nm].n, cy: g[nm].sy/g[nm].n };
-  });
-}
-function renderMosaic(){
-  var layout = gridLayout(sidoCentroids());   // 카토그램용 격자배치 함수를 시도 단위로 재사용
-  var wrap = document.getElementById('mosaic');
-  wrap.style.gridTemplateColumns = 'repeat('+layout.cols+',1fr)';
-  wrap.style.gridTemplateRows = 'repeat('+layout.rows+',minmax(110px,1fr))';
-  var html = '';
-  layout.cells.forEach(function(x){
-    var sido = x.f.sido;
-    html += '<div class="minicell" style="grid-row:'+(x.r+1)+';grid-column:'+(x.c+1)+'">'
-      + '<div class="minihd">'+sido+'</div>'
-      + '<div class="miniwrap"><svg class="minisvg" data-sido="'+sido+'" xmlns="http://www.w3.org/2000/svg" '
-      + 'preserveAspectRatio="xMidYMid meet">' + kbPathTags([sido]) + '</svg>'
-      + '<div class="minilabels"></div></div></div>';
-  });
-  wrap.innerHTML = html;
-  layout.cells.forEach(function(x){
-    var sido = x.f.sido, v = D.geo.views[sido]; if(!v) return;
-    var svg = wrap.querySelector('svg[data-sido="'+sido+'"]');
-    var lab = svg.nextElementSibling;
-    setViewBox(svg, v);
-    var feats = D.geo.kb.filter(function(f){ return f.sido===sido });
-    feats.forEach(function(f){
-      var val2 = val(D.regions[f.c], st.metric, st.period), t = tone(val2);
-      var p = svg.querySelector('[data-c="'+f.c+'"]');
-      if(p){ p.setAttribute('fill', t.bg); p.setAttribute('stroke', st.sel==f.c?'#d97706':'#7d8794');
-        p.setAttribute('stroke-width', st.sel==f.c?'2.4':'1') }
-    });
-    placeLabels(svg, lab, v, feats, true);
-  });
-  document.getElementById('mtitle').textContent = '전국 — 시도별 지도 · ' + METRIC_LBL[st.metric]
-    + ' ' + PERIOD_LBL[st.period] + ' 변동률(%)';
-  document.getElementById('labnote').textContent =
-    '시도 17개를 각자 미니지도로 나눠 전부 라벨링했습니다(시도 안에서는 시군구가 적어 안 겹칩니다).';
 }
 
 /* 라벨 배치 — viewBox 레터박스를 감안해 px로 환산하고, 큰 지역부터 겹치지 않게 놓는다.
@@ -606,242 +388,25 @@ function placeLabels(sv, lb, v, feats, small){
     if(!mode){ bw = vw2; bh = vh2; if(fits(it.x,it.y,bw,bh)) mode='value' }
     if(!mode) return;
     placed.push({x:it.x, y:it.y, w:bw, h:bh});
-    var dark = level(it.value) >= 3;
-    html += '<div class="lab" style="left:'+it.x.toFixed(1)+'px;top:'+it.y.toFixed(1)+'px;color:'
-      + (dark ? '#fff' : '#1b2330') + ';text-shadow:'
-      + (dark ? '0 0 3px rgba(0,0,0,.6),0 0 2px rgba(0,0,0,.6)' : '0 0 3px #fff,0 0 3px #fff,0 0 2px #fff')
+    // 배경이 이제 흰색 고정(음영 없음)이라 대비 걱정 없이 방향색만 숫자에 준다
+    var vcolor = it.value==null ? '#98a0ac' : (it.value>0 ? '#b35900' : (it.value<0 ? '#2f5f9e' : '#3b4553'));
+    html += '<div class="lab" style="left:'+it.x.toFixed(1)+'px;top:'+it.y.toFixed(1)+'px;color:#1b2330;'
+      + 'text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 2px #fff'
       + '">' + (mode==='full' ? '<span class="ln">'+nTxt+'</span>' : '')
-      + '<span class="lv">'+vTxt+'</span></div>';
+      + '<span class="lv" style="color:'+vcolor+'">'+vTxt+'</span></div>';
   });
   lb.innerHTML = html;
   return items.filter(function(i){return i.size>=14}).length - placed.length;
 }
 
-/* ══════════ 격자(카토그램) ══════════
-   면적 왜곡을 없앤다. 실제 중심좌표를 격자에 사상해 위치감만 남기고 칸 크기는 모두 같게.
-   ⚠ 손으로 만든 배치표가 아니다 — 경계 데이터의 실제 중심좌표(cx,cy)에서 계산한다. */
-function gridLayout(feats){
-  var n = feats.length;
-  if(!n) return { cols:0, rows:0, cells:[] };
-  var v = curView(), ar = (v[2]-v[0]) / (v[3]-v[1]);
-  // 칸이 딱 맞으면 충돌 해소가 불가능해 지리감이 크게 망가진다 → 25% 여유
-  var cols = Math.max(2, Math.ceil(Math.sqrt(n*ar) * 1.25));
-  var rows = Math.max(2, Math.ceil(n/Math.max(1,Math.floor(cols/1.25)) * 1.25));
-  var minx=1e18,maxx=-1e18,miny=1e18,maxy=-1e18;
-  feats.forEach(function(f){
-    minx=Math.min(minx,f.cx); maxx=Math.max(maxx,f.cx);
-    miny=Math.min(miny,f.cy); maxy=Math.max(maxy,f.cy) });
-  var dx = (maxx-minx)||1, dy = (maxy-miny)||1;
-  var want = feats.map(function(f){
-    return { f:f,
-      c0: Math.round((f.cx-minx)/dx*(cols-1)),
-      r0: Math.round((maxy-f.cy)/dy*(rows-1)) };
-  });
-  // 위에서 아래로, 왼쪽에서 오른쪽으로 놓으면 밀림이 한 방향으로만 누적돼 지리감이 덜 깨진다
-  want.sort(function(a,b){ return a.r0-b.r0 || a.c0-b.c0 });
-  var occ = {}, cells = [];
-  want.forEach(function(w){
-    var best=null, bd=1e9, lim=Math.max(cols,rows);
-    for(var rad=0; rad<=lim; rad++){
-      for(var dr=-rad; dr<=rad; dr++) for(var dc=-rad; dc<=rad; dc++){
-        if(Math.max(Math.abs(dr),Math.abs(dc))!==rad) continue;
-        var rr=w.r0+dr, cc=w.c0+dc;
-        if(rr<0||cc<0||rr>=rows||cc>=cols) continue;
-        if(occ[rr+','+cc]) continue;
-        var d=dr*dr+dc*dc*1.0;
-        if(d<bd){ bd=d; best=[rr,cc] }
-      }
-      if(best) break;
-    }
-    if(!best) return;
-    occ[best[0]+','+best[1]]=1;
-    cells.push({ f:w.f, r:best[0], c:best[1] });
-  });
-  // 빈 행·열을 걷어내 화면을 꽉 채운다
-  var ur={}, uc={};
-  cells.forEach(function(x){ ur[x.r]=1; uc[x.c]=1 });
-  var rmap={}, cmap={}, ri=0, ci=0;
-  Object.keys(ur).map(Number).sort(function(a,b){return a-b}).forEach(function(r){ rmap[r]=ri++ });
-  Object.keys(uc).map(Number).sort(function(a,b){return a-b}).forEach(function(c){ cmap[c]=ci++ });
-  cells.forEach(function(x){ x.r=rmap[x.r]; x.c=cmap[x.c] });
-  return { cols:ci, rows:ri, cells:cells };
-}
-/* 현재 드릴다운된 지역 안의 시군구 목록(검색어 반영) — 격자·랭킹·헤드라인이 공유 */
-function regionFeats(){
-  return D.geo.kb.filter(function(f){
-    if(!inView(f)) return false;
-    if(st.q && f.nm.indexOf(st.q)<0 && f.sido.indexOf(st.q)<0) return false;
-    return true;
-  });
-}
-/* 결론 한 줄 — 카드·막대를 스캔하기 전에 먼저 읽히도록. items = [{n, v}] */
-function headlineHTML(items, label){
-  var vs = items.filter(function(x){ return x.v!=null && !isNaN(x.v) });
-  if(!vs.length) return '<b>'+label+'</b> — 표시할 값이 없습니다.';
-  var up=0, down=0, flat=0;
-  vs.forEach(function(x){ if(x.v>0) up++; else if(x.v<0) down++; else flat++ });
-  var top = vs.reduce(function(a,b){ return b.v>a.v ? b : a });
-  var bot = vs.reduce(function(a,b){ return b.v<a.v ? b : a });
-  return '<b>'+label+'</b> '+vs.length+'곳 중 상승 <b style="color:#b35900">'+up+'</b>'
-    + ' · 보합 '+flat+' · 하락 <b style="color:#2f5f9e">'+down+'</b>'
-    + ' — 가장 많이 오른 곳 <b>'+top.n+' '+fmt(top.v)+'%</b>'
-    + ', 가장 많이 내린 곳 <b>'+bot.n+' '+fmt(bot.v)+'%</b>';
-}
-function renderRegHeadline(){
-  var items = regionFeats().map(function(f){ var r=D.regions[f.c];
-    return { n:f.nm, v: r ? val(r, st.metric, st.period) : null } });
-  document.getElementById('regheadline').innerHTML = headlineHTML(items, st.region);
-}
-/* ── 핵심(TOP5) — 기본 화면. 39~155개를 전부 늘어놓지 않고 극단 5+5만 보여준다.
-   막대 리스트는 개수가 많으면 스크롤이 필요해 "한눈에"를 못 지킨다 — 이게 진짜 대안. ── */
-function topCardHTML(it, rank, kind){
-  var t = tone(it.v);
-  return '<div class="topcard" data-c="'+it.f.c+'" style="background:'+t.bg+';color:'+t.fg+'">'
-    + '<div class="trank">'+rank+'</div>'
-    + '<div class="tnm">'+it.f.nm+'</div>'
-    + '<div class="tvv">'+fmt(it.v)+'</div></div>';
-}
-function renderTopMovers(){
-  var items = regionFeats().map(function(f){ var r=D.regions[f.c];
-    return { f:f, v: r ? val(r, st.metric, st.period) : null } });
-  var vs = items.filter(function(x){ return x.v!=null }).sort(function(a,b){ return b.v-a.v });
-  var n = vs.length, top, bot, restN=0, restAvg=null;
-  if(n<=10){ top = vs; bot = []; }
-  else {
-    top = vs.slice(0,5); bot = vs.slice(-5).reverse();
-    var rest = vs.slice(5, n-5); restN = rest.length;
-    if(restN) restAvg = rest.reduce(function(s,x){ return s+x.v }, 0) / restN;
-  }
-  document.getElementById('topup').innerHTML = top.map(function(it,i){ return topCardHTML(it,i+1,'up') }).join('')
-    || '<div class="note">표시할 값이 없습니다.</div>';
-  document.getElementById('topdown').innerHTML = bot.map(function(it,i){ return topCardHTML(it,i+1,'dn') }).join('');
-  document.getElementById('topdowncol').classList.toggle('hide', bot.length===0);
-  var restEl = document.getElementById('toprest');
-  restEl.innerHTML = restN
-    ? '나머지 <b>'+restN+'</b>곳은 상·하위 5곳 사이 — 평균 '+fmt(restAvg)+'% (대체로 보합)'
-      + ' · <a href="javascript:void(0)" id="seeall">전체 '+n+'곳 막대로 보기 ›</a>'
-    : '';
-  document.getElementById('toptitle').textContent = st.region + ' 핵심 — ' + METRIC_LBL[st.metric]
-    + ' ' + PERIOD_LBL[st.period] + ' 변동률(%) · ' + n + '개 시군구 중 상·하위 5곳';
-  var seeall = document.getElementById('seeall');
-  if(seeall) seeall.onclick = function(){ st.view='bar'; syncButtons(); render() };
-}
-/* ── 전체 랭킹(발산 막대) — TOP5로도 부족할 때 보는 상세. 정렬돼 있어 극단값이 항상 맨 위·맨 아래에 온다 ── */
-function renderBarChart(){
-  var items = regionFeats().map(function(f){ var r=D.regions[f.c];
-    return { f:f, v: r ? val(r, st.metric, st.period) : null } });
-  items.sort(function(a,b){
-    if(a.v==null && b.v==null) return 0;
-    if(a.v==null) return 1; if(b.v==null) return -1;
-    return b.v - a.v;
-  });
-  var n = items.length;
-  var mx = items.reduce(function(m,it){ return it.v!=null ? Math.max(m, Math.abs(it.v)) : m }, 0.01);
-  var html = '';
-  items.forEach(function(it, i){
-    var cls = it.v==null ? '' : (i<3 ? 'top' : (i>=n-3 ? 'bot' : ''));
-    var t = tone(it.v);
-    // 0 기준 좌우분할이 아니라 왼쪽부터 채운다 — 실거래 데이터는 대부분 한쪽(상승 또는 하락)으로
-    // 쏠려 있어서, 0 기준으로 나누면 쏠린 쪽 반대편 절반이 "모든 줄"에서 낭비된다(실측: 경기 39곳 중
-    // 31곳 상승 — 발산형이면 31줄의 왼쪽 절반이 통째로 빈 칸이 된다). 방향은 색으로만 구분.
-    var fill = '';
-    if(it.v!=null){
-      var pct = Math.min(100, Math.abs(it.v)/mx*100);
-      fill = 'left:0;width:'+pct.toFixed(1)+'%;background:'+t.bg;
-    }
-    var vcolor = it.v==null ? '#98a0ac' : (it.v>0 ? '#b35900' : (it.v<0 ? '#2f5f9e' : '#3b4553'));
-    html += '<div class="brow '+cls+'" data-c="'+it.f.c+'"'
-      + (st.sel==it.f.c ? ' style="box-shadow:0 0 0 2px #d97706"' : '') + '>'
-      + '<div class="bn">'+it.f.nm+'</div>'
-      + '<div class="btrack"><div class="bfill" style="'+fill+'"></div></div>'
-      + '<div class="bv" style="color:'+vcolor+'">'+fmt(it.v)+'</div></div>';
-  });
-  document.getElementById('barwrap').innerHTML = html;
-  document.getElementById('barlegend').innerHTML = legendHTML();
-  document.getElementById('btitle').textContent = st.region + ' 전체 — ' + METRIC_LBL[st.metric]
-    + ' ' + PERIOD_LBL[st.period] + ' 변동률(%) · ' + n + '개 시군구 · 많이 움직인 순 · 막대는 방향 무관 크기, 색으로 상승/하락 구분';
-}
-function renderGrid(){
-  var feats = regionFeats();
-  var g = gridLayout(feats);
-  var wrap = document.getElementById('gridwrap');
-  wrap.style.gridTemplateColumns = 'repeat('+g.cols+',minmax(62px,1fr))';
-  var h = '';
-  g.cells.forEach(function(x){
-    var r = D.regions[x.f.c]; if(!r) return;
-    var v = val(r, st.metric, st.period), t = tone(v);
-    var sub = st.metric==='j' ? '매 '+fmt(val(r,'m',st.period)) : '전 '+fmt(val(r,'j',st.period));
-    h += '<div class="cell" data-c="'+x.f.c+'" style="grid-row:'+(x.r+1)+';grid-column:'+(x.c+1)+';'
-      + 'background:'+t.bg+';color:'+t.fg
-      + (st.sel==x.f.c ? ';box-shadow:0 0 0 2px #d97706' : '') + '">'
-      + '<div class="nm" style="background:'+(GCOLOR[r.g]||'#eef1f6')+'">'+r.n+'</div>'
-      + '<div class="vl">'+fmt(v)+'</div><div class="sub">'+sub+'</div></div>';
-  });
-  wrap.innerHTML = h;
-  document.getElementById('gtitle').textContent = st.region + ' 격자 — ' + METRIC_LBL[st.metric]
-    + ' ' + PERIOD_LBL[st.period] + ' 변동률(%) · ' + g.cells.length + '개 시군구';
-  document.getElementById('gnote').textContent =
-    '칸 크기가 모두 같습니다. 실제 면적·모양은 무시하고 위치만 대략 유지합니다(중심좌표로 자동 배치) — '
-    + '면적 큰 시군구가 시선을 끌던 문제와 라벨 겹침이 없습니다. 색 기준은 지도와 동일.';
-}
-
-
-/* ── 요약 박스 ── */
-function cellHTML(col){
-  var r = D.regions[col]; if(!r) return '';
-  var v = val(r, st.metric, st.period), t = tone(v), sub;
-  if(st.metric==='g') sub = '매'+fmt(val(r,'m',st.period))+' 전'+fmt(val(r,'j',st.period));
-  else if(st.metric==='m') sub = '전 '+fmt(val(r,'j',st.period));
-  else sub = '매 '+fmt(val(r,'m',st.period));
-  return '<div class="cell" data-c="'+col+'" style="background:'+t.bg+';color:'+t.fg+'">'
-    + '<div class="nm" style="background:'+(GCOLOR[r.g]||'#eef1f6')+'">'+r.n+'</div>'
-    + '<div class="vl">'+fmt(v)+'</div><div class="sub">'+sub+'</div></div>';
-}
-
-var PRIMARY = ['전국','수도권','서울','경기','인천'];   // 간단 모드에 버튼으로 내놓을 지역
-function chipsHTML(){
-  var shown = st.pro ? ['전국'].concat(GORDER.filter(function(g){ return g!=='전국' })) : PRIMARY;
-  var h = '';
-  shown.forEach(function(g){
-    if(!D.geo.views[g]) return;
-    var n = 0; D.geo.kb.forEach(function(f){ if(f.sido===g) n++ });
-    var sw = (g==='전국' || g==='수도권') ? ''
-      : '<i style="width:11px;height:11px;border-radius:3px;border:1px solid rgba(0,0,0,.2);display:inline-block;background:'+(GCOLOR[g]||'#eee')+'"></i>';
-    h += '<button class="chip'+(st.region===g?' on':'')+'" data-view="'+g+'">' + sw + g
-       + (st.pro && n ? '<span style="opacity:.55">'+n+'</span>' : '') + '</button>';
-  });
-  if(!st.pro){
-    var rest = GORDER.filter(function(g){ return PRIMARY.indexOf(g)<0 && D.geo.views[g] });
-    h += '<select id="moresel" class="chipsel"><option value="">다른 지역…</option>'
-       + rest.map(function(g){ return '<option value="'+g+'"'+(st.region===g?' selected':'')+'>'+g+'</option>' }).join('')
-       + '</select>';
-  }
-  return h;
-}
 // 간단 모드: 색 띠 하나 + 양끝 숫자만. 자세히 모드: 구간별 수치 전부.
-function legendSimple(){
-  var b = bands(), h = '<span style="font-size:11.5px;color:#5d6878">하락</span>';
-  for(var i=4;i>=1;i--) h += '<i class="sw2" style="background:'+NEG[i]+'"></i>';
-  h += '<i class="sw2" style="background:#fff"></i>';
-  for(i=1;i<=4;i++) h += '<i class="sw2" style="background:'+POS[i]+'"></i>';
-  h += '<span style="font-size:11.5px;color:#5d6878">상승</span>';
-  h += '<span style="font-size:11.5px;color:#5d6878;margin-left:6px">'
-    + '진한 색 = ±'+b[3].toFixed(2)+'% 이상 · 흰색 = 거의 변동 없음 · 회색 = KB 미조사</span>';
-  return h;
-}
+/* 음영(그라데이션) 없이 숫자 자체를 색으로 구분한다 — placeLabels의 vcolor 배색과 맞춰둔다 */
 function legendHTML(){
-  if(!st.pro) return legendSimple();
-  var b=bands(), i, h='<b>범례 ('+METRIC_LBL[st.metric]+' '+PERIOD_LBL[st.period]+', %)</b>';
-  function lo(lv){ return b[lv-1] } function hi(lv){ return lv===4?null:b[lv] }
-  for(i=4;i>=1;i--){ var t = hi(i)==null ? '+'+lo(i).toFixed(2)+' 이상' : '+'+lo(i).toFixed(2)+' ~ +'+hi(i).toFixed(2);
-    h += '<span class="lg"><i class="sw" style="background:'+POS[i]+'"></i>'+t+'</span>' }
-  h += '<span class="lg"><i class="sw" style="background:#fff"></i>±'+b[0].toFixed(2)+' 이내</span>';
-  for(i=1;i<=4;i++){ var t2 = hi(i)==null ? '−'+lo(i).toFixed(2)+' 이하' : '−'+hi(i).toFixed(2)+' ~ −'+lo(i).toFixed(2);
-    h += '<span class="lg"><i class="sw" style="background:'+NEG[i]+'"></i>'+t2+'</span>' }
-  h += '<span class="lg"><i class="sw" style="background:#e6e9ee"></i>KB 자료없음</span>';
-  h += '<span class="lg"><i class="sw" style="background:#dde2e9"></i>KB 미조사 시군구</span>';
-  h += '<span class="lg" style="color:#5d6878">'+(st.scale==='auto'?'자동(분위) 스케일':'고정 스케일')+'</span>';
-  return h;
+  return '<span style="font-size:11.5px;color:#5d6878">숫자 색:</span>'
+    + '<span style="color:#b35900;font-weight:700;margin-left:4px">■ 상승</span>'
+    + '<span style="color:#2f5f9e;font-weight:700;margin-left:8px">■ 하락</span>'
+    + '<span style="color:#3b4553;font-weight:700;margin-left:8px">■ 보합(0.00)</span>'
+    + '<span style="font-size:11.5px;color:#5d6878;margin-left:10px">회색 배경 = KB 미조사 시군구</span>';
 }
 
 /* ── ㎡당 실제 가격 (KB 월간). 지방 도 시군구는 KB 미수록이라 없을 수 있다 ── */
@@ -860,34 +425,6 @@ function priceLine(col){
   return "㎡당 <b>"+won(m)+"</b>만원 (84㎡ ≈ "+eok(m)+"억)"+(j!=null?" · 전세 "+won(j)+"만원":"");
 }
 
-/* ── 순위표 ── */
-var rankSort = {key:'v', dir:-1};
-function renderRank(){
-  var rows = D.mapcols.map(function(c){
-    var r = D.regions[c];
-    return {c:c, n:r.n, g:r.g, w1:val(r,st.metric,1), w4:val(r,st.metric,4),
-      w13:val(r,st.metric,13), w26:val(r,st.metric,26), w52:val(r,st.metric,52),
-      px:pxm(c), rt:(rtv(c)?rtv(c)[0]:null), rtn:(rtv(c)?rtv(c)[1]:null),
-      v:val(r,st.metric,st.period)};
-  });
-  var k=rankSort.key, dir=rankSort.dir;
-  rows.sort(function(a,b){ var x=a[k],y=b[k];
-    if(typeof x==='string') return dir*x.localeCompare(y);
-    if(x==null) return 1; if(y==null) return -1; return dir*(x-y) });
-  var h='<table><thead><tr><th data-k="g">시도</th><th data-k="n">지역</th>'
-   +'<th data-k="w1">1주</th><th data-k="w4">4주</th><th data-k="w13">13주</th>'
-   +'<th data-k="w26">26주</th><th data-k="w52">52주</th>'
-   +'<th data-k="px" title="KB 월간 ㎡당 아파트 평균매매가">KB ㎡당<br>(만원)</th>'
-   +'<th data-k="rt" title="국토부 실거래 84㎡ 평균 (최근 3개월)">실거래 84㎡<br>(억)</th></tr></thead><tbody>';
-  rows.forEach(function(r){
-    function td(v){ var t=tone(v); return '<td style="background:'+t.bg+';color:'+t.fg+'">'+fmt(v)+'</td>' }
-    h += '<tr data-c="'+r.c+'"><td>'+r.g+'</td><td>'+r.n+'</td>'
-      + td(r.w1)+td(r.w4)+td(r.w13)+td(r.w26)+td(r.w52)
-      + '<td>'+(r.px!=null?won(r.px):'<span style="color:#a4abb6">–</span>')+'</td>'
-      + '<td>'+(r.rt!=null?(r.rt/10000).toFixed(2)+'<span style="color:#8a93a1;font-size:10px"> '+r.rtn+'건</span>':'<span style="color:#a4abb6">–</span>')+'</td></tr>';
-  });
-  document.getElementById('rank').innerHTML = h+'</tbody></table>';
-}
 
 /* ── 차트 ── */
 function chart(series, colors, labels, h){
@@ -1002,143 +539,26 @@ function showTip(e, col){
 function hideTip(){ if(tip) tip.style.display='none' }
 
 function render(){
-  computeAuto();
-  document.getElementById('chips').innerHTML = chipsHTML();
   document.getElementById('legend').innerHTML = legendHTML();
-  renderRegHeadline();
-  document.getElementById('topview').classList.toggle('hide', st.view!=='top');
-  document.getElementById('comboview').classList.toggle('hide', st.view!=='combo');
-  document.getElementById('gridview').classList.toggle('hide', st.view!=='grid');
-  document.getElementById('rankview').classList.toggle('hide', st.view!=='rank');
-  if(st.view==='top'){
-    renderTopMovers();
-  } else if(st.view==='combo'){
-    renderBarChart();
-    var isNational = st.region==='전국';
-    document.getElementById('mapwrap').classList.toggle('hide', isNational);
-    document.getElementById('mosaic').classList.toggle('hide', !isNational);
-    if(isNational){
-      renderMosaic();
-    } else {
-      applyView(); paintMap();
-      document.getElementById('mtitle').textContent = st.region + ' — ' + METRIC_LBL[st.metric]
-        + ' ' + PERIOD_LBL[st.period] + ' 변동률(%)';
-    }
-    document.getElementById('capsum').innerHTML = D.summary.capital.map(cellHTML).join('');
-    document.getElementById('locsum').innerHTML = D.summary.local.map(cellHTML).join('');
-  } else if(st.view==='grid'){
-    renderGrid();
-  } else renderRank();
-  document.getElementById('caption').textContent = METRIC_LBL[st.metric]+' · '+PERIOD_LBL[st.period]
-    + (st.period===1 ? ' — KB 발표 증감률' : ' — KB 가격지수로 산출');
-  writeHash();
-}
-
-/* ── URL 해시로 상태 공유 (#지역=서울&지표=j&기간=13&보기=지도막대) — 생략 시 전국(첫 화면) ── */
-function readHash(){
-  var h = decodeURIComponent(location.hash.replace(/^#/,''));
-  if(!h) return false;
-  var got = false;
-  h.split('&').forEach(function(kv){
-    var p = kv.split('='), k = p[0], v = p[1];
-    if(v==null) return;
-    if(k==='지역' && D.geo.views[v]){ st.region=v; got=true }
-    else if(k==='지표' && ['m','j','g'].indexOf(v)>=0){ st.metric=v; got=true }
-    else if(k==='기간' && THRESH[+v]){ st.period=+v; got=true }
-    else if(k==='보기' && (v==='핵심'||v==='지도막대'||v==='격자'||v==='순위표')){
-      st.view = v==='핵심'?'top':(v==='지도막대'?'combo':(v==='격자'?'grid':'rank')); got=true }
-    else if(k==='색상' && (v==='고정'||v==='자동')){ st.scale = v==='고정'?'fixed':'auto'; got=true }
-  });
-  return got;
-}
-function viewLbl(){ return st.view==='top'?'핵심':(st.view==='combo'?'지도막대':(st.view==='grid'?'격자':'순위표')) }
-function writeHash(){
-  var h = '지역='+st.region+'&지표='+st.metric+'&기간='+st.period
-        + '&보기='+viewLbl()+'&색상='+(st.scale==='fixed'?'고정':'자동');
-  history.replaceState(null, '', '#'+h);
-}
-function applyPro(){
-  document.body.classList.toggle('pro', st.pro);
-  var pb = document.getElementById('protoggle');
-  if(pb) pb.textContent = st.pro ? '－ 옵션 접기' : '＋ 옵션 더보기';
-}
-function syncButtons(){
-  document.querySelectorAll('.seg button').forEach(function(b){
-    var g=b.dataset.g, v=b.dataset.v, on=false;
-    if(g==='metric') on = st.metric===v;
-    else if(g==='period') on = st.period===+v;
-    else if(g==='scale') on = st.scale===(v==='fixed'?'fixed':'auto');
-    else if(g==='view') on = st.view===v;
-    b.setAttribute('aria-pressed', on?'true':'false');
-  });
+  applyView(); paintMap();
+  document.getElementById('mtitle').textContent = 'KB 주간 시세동향 — '
+    + METRIC_LBL[st.metric] + ' ' + PERIOD_LBL[st.period] + ' 변동률(%)';
 }
 
 document.addEventListener('DOMContentLoaded', function(){
   buildPaths(); initMap();
-  if(innerWidth < 820) st.region = '수도권';
-  readHash();
-  // 해시로 고급 값이 지정됐으면 자세히 모드로 자동 전환
-  if(st.metric==='g' || st.period===4 || st.period===26 || st.scale==='auto') st.pro = true;
-  applyPro(); syncButtons();
-  document.querySelectorAll('.seg button').forEach(function(b){
-    b.onclick = function(){
-      var g=b.dataset.g, v=b.dataset.v;
-      if(g==='metric') st.metric=v; else if(g==='period') st.period=+v;
-      else if(g==='scale') st.scale=v; else if(g==='view') st.view=v;
-      document.querySelectorAll('.seg button[data-g="'+g+'"]').forEach(function(x){
-        x.setAttribute('aria-pressed', x===b?'true':'false') });
-      render();
-    };
-  });
-  function gotoRegion(g){
-    if(!g || !D.geo.views[g]) return;
-    st.region=g; st.view='combo'; syncButtons(); render();
-  }
-  document.getElementById('chips').addEventListener('click', function(e){
-    var b=e.target.closest('[data-view]'); if(b) gotoRegion(b.dataset.view);
-  });
-  document.getElementById('chips').addEventListener('change', function(e){
-    if(e.target.id==='moresel') gotoRegion(e.target.value);
-  });
-  // 간단 ↔ 자세히
-  var pb = document.getElementById('protoggle');
-  pb.onclick = function(){
-    st.pro = !st.pro;
-    if(!st.pro){                    // 접을 때 숨겨질 값이 골라져 있으면 기본으로 되돌린다
-      if(st.metric==='g') st.metric='m';
-      if(st.period===4 || st.period===26) st.period=13;
-      st.scale='fixed'; st.q='';
-      var qi=document.getElementById('q'); if(qi) qi.value='';
-    }
-    applyPro(); syncButtons(); render();
-  };
-  document.getElementById('q').oninput = function(){ st.q=this.value.trim(); render() };
   document.body.addEventListener('click', function(e){
     var t=e.target.closest('[data-c]'); if(!t) return;
-    // 전국을 보는 중에 지도(단일지도·모자이크 미니지도 모두)를 클릭하면 그 시도로 드릴다운.
-    // 이미 특정 지역을 보고 있으면(경기 등) 클릭은 원래대로 상세 패널을 연다.
-    var onMap = !!e.target.closest('#msvg, #isvg, .minisvg');
-    if(onMap && st.region==='전국'){
-      var f = D.geo.kb.find(function(x){ return x.c===+t.dataset.c });
-      if(f && D.geo.views[f.sido]){ st.region=f.sido; st.sel=null; syncButtons(); render(); return }
-    }
     openDrawer(+t.dataset.c);
   });
   document.body.addEventListener('mousemove', function(e){
-    var t=e.target.closest('#msvg [data-c], #isvg [data-c], .cell[data-c], .brow[data-c], .topcard[data-c]');
+    var t=e.target.closest('#msvg [data-c]');
     if(t) showTip(e, +t.dataset.c); else hideTip();
-  });
-  document.getElementById('rankview').addEventListener('click', function(e){
-    var th=e.target.closest('th[data-k]'); if(!th) return;
-    var k=th.dataset.k;
-    if(rankSort.key===k) rankSort.dir*=-1; else { rankSort.key=k; rankSort.dir=(k==='n'||k==='g')?1:-1 }
-    renderRank();
   });
   document.addEventListener('keydown', function(e){
     if(e.key==='Escape'){ document.getElementById('drawer').classList.remove('open'); st.sel=null; render() }
   });
-  addEventListener('resize', function(){ if(st.view==='map') paintMap() });
-  addEventListener('hashchange', function(){ if(readHash()){ syncButtons(); render() } });
+  addEventListener('resize', function(){ paintMap() });
   render();
 });
 </script>
