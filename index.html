@@ -41,6 +41,7 @@ main{padding:16px 18px 40px;display:flex;flex-direction:column;gap:14px}
 .mapwrap{position:relative;background:#eef2f7;border:1px solid var(--bd);border-radius:5px;overflow:hidden}
 #msvg{display:block;width:100%;height:auto;max-height:78vh}
 #msvg path{cursor:pointer}
+#msvg circle{cursor:pointer}
 #msvg path.ctx{cursor:default}
 #mlabels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .lab{position:absolute;transform:translate(-50%,-50%);text-align:center;line-height:1.1;
@@ -241,17 +242,21 @@ select.sidosel{border:1px solid var(--bd);border-radius:14px;padding:3px 9px;
  <div id="regionview" class="onlyregion">
  <div id="regheadline" class="headline"></div>
  <div id="topview" class="panel"><h2 id="toptitle"></h2>
+  <div class="note" style="margin:-4px 0 8px">정확한 수치·순위는 여기(핵심·막대)서 확인하세요 — <b>위치가 궁금하면 지도</b>로.</div>
   <div id="topgrid">
    <div class="topcol"><div class="colhd">🔺 가장 많이 오른 5곳</div><div id="topup"></div></div>
    <div class="topcol" id="topdowncol"><div class="colhd">🔻 가장 많이 내린 5곳</div><div id="topdown"></div></div>
   </div>
   <div id="toprest"></div></div>
  <div id="barview" class="panel hide"><h2 id="btitle"></h2>
+  <div class="note" style="margin:-4px 0 8px">정확한 수치·순위는 여기(핵심·막대)서 확인하세요 — <b>위치가 궁금하면 지도</b>로.</div>
   <div id="barwrap"></div>
   <div id="barlegend" class="legend" style="margin-top:10px"></div>
   <div class="note" style="margin-top:8px">막대 길이 = 변동폭 크기(방향 무관) · 색 = 상승(주황)·하락(파랑). 맨 위가 가장 많이 오른 곳, 맨 아래가 가장 많이 내린 곳.</div></div>
  <div id="mapview">
-  <div class="panel"><h2 id="mtitle"></h2><div class="mapwrap" id="mapwrap"></div>
+  <div class="panel"><h2 id="mtitle"></h2>
+   <div class="note" style="margin:-4px 0 8px"><b>위치 확인용</b>입니다 — 정확한 수치·순위는 <b>핵심</b>·<b>막대</b>에서 보세요.</div>
+   <div class="mapwrap" id="mapwrap"></div>
    <div id="legend" class="legend"></div>
    <div class="note" id="labnote"></div></div>
   <div class="panel adv" style="margin-top:14px"><b style="font-size:12px">수도권 권역 요약</b>
@@ -359,9 +364,28 @@ function buildPaths(){
   D.geo.kb.forEach(function(f){ PATH[f.c] = f.r.map(ringPath).join('') });
   CTXPATH = D.geo.ctx.map(function(f){ return f.r.map(ringPath).join('') });
 }
-var svgEl=null, labEl=null, pathByCol={};
+var svgEl=null, labEl=null, pathByCol={}, dotsEl=null;
 var isvgEl=null, ilabEl=null, ipathByCol={}, insetEl=null;
 var OUTFILL='#dde2e9', OUTSTROKE='#c6ccd5';     // 뷰 밖 시군구 = 배경과 같은 회색
+
+/* 시장 활발도 원(●) 반지름(px) — 국토부 실거래 84㎡ 최근 3개월 거래건수의 제곱근.
+   면적이 커도 거래가 적은 지방 군(郡)은 원이 거의 안 보이고, 면적은 작아도 활발한 도심구는 크게 보이게 —
+   땅 면적이 실제 시장 크기와 무관하다는, 지도의 근본 문제를 데이터로 보정한다. */
+function actR(c){
+  var v = D.rt && D.rt.d[c]; if(!v || !v[1]) return 0;
+  return Math.min(13, 2.4 + Math.sqrt(v[1]) * 1.15);
+}
+/* 이름표는 극단값(상·하위 3곳)에만 준다 — 155개를 다 라벨링하면 아무것도 안 보인다.
+   나머지는 색 + 원(활발도)만으로 보여주고, 궁금하면 클릭/호버로 확인하게 한다. */
+function mapExtremes(feats){
+  var vs = feats.map(function(f){ return { f:f, v: val(D.regions[f.c], st.metric, st.period) } })
+    .filter(function(x){ return x.v!=null }).sort(function(a,b){ return b.v-a.v });
+  var n = vs.length, K = n>12 ? 3 : 1;
+  var top = vs.slice(0,K), bot = n>K ? vs.slice(-K).reverse() : [];
+  var seen = {}, out = [];
+  top.concat(bot).forEach(function(x){ if(!seen[x.f.c]){ seen[x.f.c]=1; out.push(x.f) } });
+  return out;
+}
 
 function kbPathTags(pref){
   var s='';
@@ -377,7 +401,7 @@ function initMap(){
   svg+='<g id="gctx">';
   CTXPATH.forEach(function(d){ svg+='<path class="ctx" d="'+d+'" fill="#dde2e9" stroke="#c6ccd5" '
     +'stroke-width="1" vector-effect="non-scaling-stroke"/>' });
-  svg+='</g><g id="gkb">' + kbPathTags(null) + '</g>'
+  svg+='</g><g id="gkb">' + kbPathTags(null) + '</g><g id="gdots"></g>'
     +'<path id="zoombox" d="" fill="none" stroke="#5d6878" stroke-dasharray="4 3" '
     +'stroke-width="1.4" vector-effect="non-scaling-stroke" pointer-events="none"/></svg>';
   // 인셋은 서울·인천만 다시 그린다(본 지도와 같은 색 규칙·같은 클릭 동작)
@@ -387,6 +411,7 @@ function initMap(){
   document.getElementById('mapwrap').innerHTML = svg + '<div id="mlabels"></div>' + ins;
   svgEl = document.getElementById('msvg');
   labEl = document.getElementById('mlabels');
+  dotsEl = document.getElementById('gdots');
   insetEl = document.getElementById('inset');
   isvgEl = document.getElementById('isvg');
   ilabEl = document.getElementById('ilabels');
@@ -435,7 +460,11 @@ function paintMap(){
     if(!off[f.c] && !inInset) main.push(f);
   });
   var v0 = curView();
-  var hid = placeLabels(svgEl, labEl, v0, main, false);
+  // 활발도 원 — 라벨과 무관하게, 보이는 전부(인셋에 넘긴 서울·인천 포함)에 그린다.
+  // 155개를 다 라벨링하는 대신 이걸로 "여기가 시장이 큰 곳"을 보여준다.
+  var visible = D.geo.kb.filter(function(f){ return !off[f.c] });
+  paintDots(visible, v0);
+  var hid = placeLabels(svgEl, labEl, v0, mapExtremes(main), false);
 
   // 인셋 배치·표시
   var zoomBox = document.getElementById('zoombox');
@@ -466,11 +495,34 @@ function paintMap(){
 
   var el = document.getElementById('labnote');
   if(el){
-    var msg = [];
-    if(hid > 0) msg.push('라벨이 겹쳐 '+hid+'곳은 숫자를 생략했습니다 — 격자 보기로 바꾸거나 마우스를 올려 확인하세요.');
+    var msg = ['이름표는 가장 많이 오른·내린 곳만 표시합니다. 원(●) 크기 = 최근 3개월 실거래 건수(활발한 시장일수록 큼) · 나머지는 색으로 보거나 클릭·호버로 확인하세요.'];
+    if(hid > 0) msg.push(hid+'개 라벨은 자리가 없어 생략됐습니다.');
     if(outN > 0) msg.push('회색 = KB 미조사 시군구이거나 '+st.region+' 밖 지역(값을 주지 않습니다).');
     el.textContent = msg.join(' ');
   }
+}
+/* 활발도 원 — SVG 네이티브 circle. 화면 픽셀 기준 반지름을 viewBox 단위로 환산해서 그린다
+   (zoom 배율이 바뀌어도 화면에서는 항상 같은 크기로 보이게).
+   ⚠ 그대로 두면 전국처럼 넓게 보는 화면에서는 수도권 남부에 몰린 원들이 다닥다닥 겹쳐 잉크 얼룩이 된다
+   → 보는 범위(vw)가 넓을수록(=지리적으로 조밀해질수록) 원을 비례해서 줄인다. */
+function paintDots(feats, v){
+  var sr = svgEl.getBoundingClientRect();
+  var vw = v[2]-v[0], vh = v[3]-v[1];
+  if(!sr.width || !sr.height){ dotsEl.innerHTML=''; return }
+  var sc = Math.min(sr.width/vw, sr.height/vh);
+  var REF_VW = 13000;                              // 경기·수도권 뷰 폭 기준 — 여기서는 원래 크기
+  var zoomK = Math.min(1, REF_VW/vw);
+  // 중립색(회색) — 트렌드 색은 폴리곤이 이미 맡고 있어서, 원은 "여기 시장이 크다"만 더한다.
+  // 같은 색을 또 쓰면 구분이 안 되고, 값이 0 근처(흰색)인 곳은 원도 흰색이 되어 안 보이게 된다.
+  var html = '';
+  feats.forEach(function(f){
+    var rpx = actR(f.c) * zoomK; if(rpx<=0.4) return;
+    var rv = rpx/sc;
+    html += '<circle data-c="'+f.c+'" cx="'+f.cx+'" cy="'+(-f.cy)+'" r="'+rv.toFixed(2)+'" '
+      + 'fill="#2b3545" fill-opacity="0.16" stroke="#2b3545" stroke-opacity="0.5" '
+      + 'stroke-width="'+(0.7/sc).toFixed(2)+'"></circle>';
+  });
+  dotsEl.innerHTML = html;
 }
 
 /* 라벨 배치 — viewBox 레터박스를 감안해 px로 환산하고, 큰 지역부터 겹치지 않게 놓는다.
@@ -1069,7 +1121,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var t=e.target.closest('[data-c]'); if(t) openDrawer(+t.dataset.c);
   });
   document.body.addEventListener('mousemove', function(e){
-    var t=e.target.closest('#msvg [data-c], #isvg [data-c], .cell[data-c], .brow[data-c]');
+    var t=e.target.closest('#msvg [data-c], #isvg [data-c], .cell[data-c], .brow[data-c], .topcard[data-c]');
     if(t) showTip(e, +t.dataset.c); else hideTip();
   });
   document.getElementById('rankview').addEventListener('click', function(e){
