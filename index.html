@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>KB 주간 시세동향 지도 2026-08-03</title>
 <style>
-:root{--bd:#ccd2dc;--ink:#151b26;--mut:#5d6878;--cw:96px;--bg:#eceff4}
+:root{--bd:#ccd2dc;--ink:#151b26;--mut:#5d6878;--cw:96px;--bg:#ffffff}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-size:13px;
  font-family:"Malgun Gothic","맑은 고딕",-apple-system,"Segoe UI",sans-serif}
@@ -38,8 +38,8 @@ input[type=search]{border:1px solid var(--bd);border-radius:5px;padding:5px 9px;
 main{padding:16px 18px 40px;display:flex;flex-direction:column;gap:14px}
 .panel{background:#fff;border:1px solid var(--bd);border-radius:7px;padding:12px 14px 16px}
 .panel>h2{font-size:14px;margin:0 0 10px;padding:6px 0;text-align:center;background:#e3e8f0;border:1px solid var(--bd);border-radius:4px}
-.mapwrap{position:relative;background:#eef2f7;border:1px solid var(--bd);border-radius:5px;overflow:hidden}
-#msvg{display:block;width:100%;height:auto;max-height:78vh}
+.mapwrap{position:relative;background:#fff;overflow:hidden}
+#msvg{display:block;width:100%;height:auto;max-height:82vh}
 #msvg path{cursor:pointer}
 #msvg circle{cursor:pointer}
 #msvg path.ctx{cursor:default}
@@ -48,17 +48,37 @@ main{padding:16px 18px 40px;display:flex;flex-direction:column;gap:14px}
  white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 2px #fff}
 .lab .ln{font-size:10.5px;font-weight:700;display:block}
 .lab .lv{font-size:12px;font-weight:700;display:block;font-variant-numeric:tabular-nums}
-/* 서울·인천 확대 인셋 — 면적이 작아 본 지도에서 뭉개지는 곳을 같은 색 규칙으로 크게 다시 그린다 */
-#inset{position:absolute;z-index:6;background:#fff;border:1px solid #9aa4b2;border-radius:6px;
- box-shadow:0 2px 10px rgba(0,0,0,.14);overflow:hidden}
-#inset.hide{display:none!important}
-#inset .ihd{font-size:10.5px;font-weight:700;color:#39424f;background:#e3e8f0;
- border-bottom:1px solid #ccd2dc;padding:3px 7px;line-height:1.3}
-#inset .ibody{position:relative}
-#isvg{display:block;width:100%;height:auto}
-#isvg path{cursor:pointer}
-#ilabels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-@media (max-width:820px){ #inset{display:none!important} }
+/* ══ 세 그룹 배치 ══
+   전국 지도 하나로는 대도시(서울 25구·부산 16구 등)가 뭉개져 숫자를 못 읽는다.
+   → 시도 17개를 성격별 세 그룹(수도권 / 광역시 / 지방 7도+제주)으로 나눠 각각 확대 미니지도로 그린다.
+   미니지도 안에서는 시군구가 몇 개뿐이라 전부 라벨링해도 안 겹친다. */
+.groups{display:flex;flex-direction:column;gap:16px;margin-top:14px}
+.grouphd{font-size:13px;font-weight:800;color:#1b2330;padding:5px 10px;background:#eef2f7;
+ border:1px solid var(--bd);border-radius:5px;margin-bottom:8px}
+.grouphd span{font-weight:400;color:var(--mut);font-size:11.5px;margin-left:6px}
+.gmaps{display:grid;gap:8px}
+/* 칸 수를 고정한다 — auto-fill 로 두면 8개(지방)에서 제주가 혼자 다음 줄로 밀린다 */
+.g-capital .gmaps{grid-template-columns:repeat(3,1fr)}
+.g-metro  .gmaps{grid-template-columns:repeat(3,1fr)}
+.g-prov   .gmaps{grid-template-columns:repeat(4,1fr)}
+@media (max-width:1100px){
+  .g-metro .gmaps{grid-template-columns:repeat(2,1fr)}
+  .g-prov  .gmaps{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:820px){
+  .g-capital .gmaps{grid-template-columns:1fr}
+  .g-metro .gmaps,.g-prov .gmaps{grid-template-columns:repeat(2,1fr)}
+}
+.minipanel{background:#fff;border:1px solid #b9c0ca;border-radius:6px;overflow:hidden}
+.minihd{font-size:11.5px;font-weight:800;color:#1b2330;background:#f2f5f9;
+ border-bottom:1px solid #ccd2dc;padding:4px 7px;display:flex;justify-content:space-between;gap:6px}
+.minihd .mv{font-variant-numeric:tabular-nums}
+.minibody{position:relative;background:#fff}
+.minisvg{display:block;width:100%;height:auto}
+.minisvg path{cursor:pointer}
+.minilabels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.minilabels .lab .ln{font-size:8.5px}
+.minilabels .lab .lv{font-size:10px}
 .legend{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:11.5px;
  background:#fff;border:1px solid var(--bd);border-radius:7px;padding:9px 14px}
 .lg{display:flex;align-items:center;gap:5px}
@@ -139,7 +159,8 @@ select.sidosel{border:1px solid var(--bd);border-radius:14px;padding:3px 9px;
  <div class="panel"><h2 id="mtitle"></h2>
   <div class="mapwrap" id="mapwrap"></div>
   <div id="legend" class="legend"></div>
-  <div class="note" id="labnote"></div></div>
+  <div class="note" id="labnote"></div>
+  <div class="groups" id="groups"></div></div>
 </main>
 <div id="drawer"></div>
 <footer>
@@ -163,9 +184,15 @@ function inView(f){
   var list = VIEWSIDO[st.region] || [st.region];
   return list.indexOf(f.sido) >= 0;
 }
-/* 인셋(확대창)을 띄울 뷰와 담을 시도 — 면적이 작아 본 지도에서 뭉개지는 곳 */
-var INSET = { 전국:['서울','인천'], 수도권:['서울','인천'], 경기:['서울','인천'] };
-function insetSidos(){ return INSET[st.region] || null }
+/* 시도 17개를 성격별 세 그룹으로 나눠 확대 미니지도로 그린다.
+   각 시도 합계값은 D.sidoCols 의 열 번호로 가져온다. */
+var SIDOCOL = D.sidoCols || {};
+var GROUPS = [
+  { key:'capital', name:'수도권',      list:['서울','경기','인천'] },
+  { key:'metro',   name:'광역시',      list:['부산','대구','광주','대전','울산','세종'] },
+  { key:'prov',    name:'지방 7도·제주', list:['강원','충북','충남','전북','전남','경북','경남','제주'] },
+];
+var ZOOM_ALL = GROUPS.reduce(function(a,g){ return a.concat(g.list) }, []);
 
 /* ── 값 계산 ── */
 function pct(a,i0,i1){ if(!a) return null; var v0=a[i0], v1=a[i1];
@@ -185,6 +212,25 @@ function val(r, metric, period){
 }
 function fmt(v,d){ if(v==null||isNaN(v)) return '–'; d=d==null?2:d; return (v>0?'+':'')+v.toFixed(d) }
 
+/* ══ 색 — KB 주간시계열 xlsx 의 조건부서식을 그대로 옮긴 것. 임의로 바꾸지 말 것 ══
+   2026-08-03 파일 [1.매매증감] cfRule/dxf 에서 재확인(8단계):
+     ≥0.8 FF750D · 0.6~0.8 FF9C19 · 0.4~0.6 FCCA3E · 0.2~0.4 FCD5B5(theme accent6+tint .6)
+     -0.4~-0.2 DBEEF4(theme accent5+tint .8) · -0.6~-0.4 A4BCE6 · -0.8~-0.6 678FD7 · ≤-0.8 2B68D5
+   임계값 0.2/0.4/0.6/0.8 도 KB 원본. bands() = [T*.25,T*.5,T*.75,T] 로 주간(T=0.8)에서 정확히 일치한다.
+   ⚠ FG/FGN(글자색)은 KB 지정이 아니라 가독성 위해 우리가 정한 값이다. */
+function bands(){ var T=THRESH[st.period]; return [T*0.25, T*0.50, T*0.75, T] }
+var POS=['#ffffff','#FCD5B5','#FCCA3E','#FF9C19','#FF750D'];
+var NEG=['#ffffff','#DBEEF4','#A4BCE6','#678FD7','#2B68D5'];
+var FG =['#3b4553','#6b3a12','#5a4408','#4a2600','#ffffff'];
+var FGN=['#3b4553','#134152','#123a5c','#ffffff','#ffffff'];
+function level(v){ var b=bands(), a=Math.abs(v), lv=0;
+  for(var i=0;i<4;i++) if(a>=b[i]) lv=i+1; return lv }
+function tone(v){
+  if(v==null||isNaN(v)) return {bg:'#e6e9ee', fg:'#98a0ac'};
+  var lv=level(v);
+  if(lv===0) return {bg:'#ffffff', fg:'#3b4553'};
+  return v>0 ? {bg:POS[lv],fg:FG[lv]} : {bg:NEG[lv],fg:FGN[lv]};
+}
 
 /* ── 지도: 링 델타 디코드 → SVG path (y 반전) ── */
 var PATH = {}, CTXPATH = [];
@@ -201,7 +247,7 @@ function buildPaths(){
   CTXPATH = D.geo.ctx.map(function(f){ return f.r.map(ringPath).join('') });
 }
 var svgEl=null, labEl=null, pathByCol={}, dotsEl=null;
-var isvgEl=null, ilabEl=null, ipathByCol={}, insetEl=null;
+var miniPath = {};                               // 확대 미니지도의 path — {시도: {열번호: <path>}}
 var OUTFILL='#dde2e9', OUTSTROKE='#c6ccd5';     // 뷰 밖 시군구 = 배경과 같은 회색
 
 /* 시장 활발도 원(●) 반지름(px) — 국토부 실거래 84㎡ 최근 3개월 거래건수의 제곱근.
@@ -226,22 +272,61 @@ function initMap(){
   CTXPATH.forEach(function(d){ svg+='<path class="ctx" d="'+d+'" fill="#dde2e9" stroke="#c6ccd5" '
     +'stroke-width="1" vector-effect="non-scaling-stroke"/>' });
   svg+='</g><g id="gkb">' + kbPathTags(null) + '</g><g id="gdots"></g>'
-    +'<path id="zoombox" d="" fill="none" stroke="#5d6878" stroke-dasharray="4 3" '
-    +'stroke-width="1.4" vector-effect="non-scaling-stroke" pointer-events="none"/></svg>';
-  // 인셋은 서울·인천만 다시 그린다(본 지도와 같은 색 규칙·같은 클릭 동작)
-  var ins = '<div id="inset" class="hide"><div class="ihd" id="ihd"></div><div class="ibody">'
-    + '<svg id="isvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">'
-    + kbPathTags(['서울','인천']) + '</svg><div id="ilabels"></div></div></div>';
-  document.getElementById('mapwrap').innerHTML = svg + '<div id="mlabels"></div>' + ins;
+    +'<g id="gzoom"></g></svg>';
+  document.getElementById('mapwrap').innerHTML = svg + '<div id="mlabels"></div>';
   svgEl = document.getElementById('msvg');
   labEl = document.getElementById('mlabels');
   dotsEl = document.getElementById('gdots');
-  insetEl = document.getElementById('inset');
-  isvgEl = document.getElementById('isvg');
-  ilabEl = document.getElementById('ilabels');
-  pathByCol = {}; ipathByCol = {};
+  pathByCol = {};
   svgEl.querySelectorAll('[data-c]').forEach(function(p){ pathByCol[p.dataset.c]=p });
-  isvgEl.querySelectorAll('[data-c]').forEach(function(p){ ipathByCol[p.dataset.c]=p });
+  buildMiniPanels();
+}
+/* 확대 미니지도 틀 만들기 — DOM은 한 번만 짓고, 값은 매번 paintMiniMaps() 가 덮어쓴다 */
+function buildMiniPanels(){
+  function panel(s){
+    var n = 0; D.geo.kb.forEach(function(f){ if(f.sido===s) n++ });
+    return '<div class="minipanel" data-sido="'+s+'">'
+      + '<div class="minihd"><span>'+s+'</span><span class="mv" data-mv="'+s+'"></span></div>'
+      + '<div class="minibody">'
+      + '<svg class="minisvg" data-sido="'+s+'" xmlns="http://www.w3.org/2000/svg" '
+      + 'preserveAspectRatio="xMidYMid meet">' + kbPathTags([s]) + '</svg>'
+      + '<div class="minilabels"></div></div></div>';
+  }
+  document.getElementById('groups').innerHTML = GROUPS.map(function(g){
+    var use = g.list.filter(function(s){ return D.geo.views[s] });
+    if(!use.length) return '';
+    var cnt = 0; D.geo.kb.forEach(function(f){ if(use.indexOf(f.sido)>=0) cnt++ });
+    return '<div class="group g-'+g.key+'">'
+      + '<div class="grouphd">'+g.name+'<span>'+use.length+'개 시도 · '+cnt+'개 시군구</span></div>'
+      + '<div class="gmaps">' + use.map(panel).join('') + '</div></div>';
+  }).join('');
+  miniPath = {};
+  document.querySelectorAll('.minisvg').forEach(function(sv){
+    var s = sv.dataset.sido, m = {};
+    sv.querySelectorAll('[data-c]').forEach(function(p){ m[p.dataset.c] = p });
+    miniPath[s] = m;
+    setViewBox(sv, D.geo.views[s]);
+  });
+}
+/* 확대 미니지도 칠하기 + 시군구 전부 라벨링(개수가 적어 안 겹친다) */
+function paintMiniMaps(){
+  ZOOM_ALL.forEach(function(s){
+    var v = D.geo.views[s]; if(!v || !miniPath[s]) return;
+    var sv = document.querySelector('.minisvg[data-sido="'+s+'"]');
+    var lb = sv.nextElementSibling;
+    var feats = D.geo.kb.filter(function(f){ return f.sido===s });
+    feats.forEach(function(f){
+      paintOne(miniPath[s], f, val(D.regions[f.c], st.metric, st.period), false, false) });
+    placeLabels(sv, lb, v, feats, true);
+    // 시도 합계 변동률을 헤더에 — 지도 안 숫자와 같은 배색
+    var mv = document.querySelector('[data-mv="'+s+'"]');
+    if(mv){
+      var col = SIDOCOL[s], r = col!=null ? D.regions[col] : null;
+      var sv2 = r ? val(r, st.metric, st.period) : null;
+      mv.textContent = fmt(sv2);
+      mv.style.color = sv2==null ? '#98a0ac' : (sv2>0 ? '#b35900' : (sv2<0 ? '#2f5f9e' : '#3b4553'));
+    }
+  });
 }
 function curView(){ return D.geo.views[st.region] || D.geo.views['전국'] }
 function setViewBox(sv, v){
@@ -251,77 +336,30 @@ function setViewBox(sv, v){
 }
 function applyView(){ setViewBox(svgEl, curView()) }
 
-/* 인셋 뷰 = 담을 시도들의 실제 경계 합집합 (여백 4%) */
-function insetView(sidos){
-  var b=[1e18,1e18,-1e18,-1e18];
-  D.geo.kb.forEach(function(f){ if(sidos.indexOf(f.sido)<0) return;
-    b[0]=Math.min(b[0],f.bb[0]); b[1]=Math.min(b[1],f.bb[1]);
-    b[2]=Math.max(b[2],f.bb[2]); b[3]=Math.max(b[3],f.bb[3]) });
-  if(b[0]>b[2]) return null;
-  var mx=(b[2]-b[0])*0.04, my=(b[3]-b[1])*0.04;
-  return [b[0]-mx, b[1]-my, b[2]+mx, b[3]+my];
-}
 function paintOne(map, f, v, dim, out){
   var p = map[f.c]; if(!p) return;
-  // 음영(그라데이션 색칠) 대신 숫자로 값을 보여준다 — 배경은 흰색 고정, 방향은 라벨 숫자 색으로만 구분
-  p.setAttribute('fill', out ? OUTFILL : '#ffffff');
+  // 칠은 KB 원본 색 그대로. 값 자체는 라벨 숫자로도 같이 보여준다(음영만으로 읽게 하지 않기)
+  p.setAttribute('fill', out ? OUTFILL : tone(v).bg);
   p.setAttribute('opacity', dim ? '0.25' : '1');
   p.setAttribute('stroke', (!out && st.sel==f.c) ? '#d97706' : (out ? OUTSTROKE : '#7d8794'));
   p.setAttribute('stroke-width', (!out && st.sel==f.c) ? '3' : '1');
 }
 function paintMap(){
-  var off = {}, main = [], sidos = insetSidos(), outN = 0;
+  var main = [], outN = 0;
   D.geo.kb.forEach(function(f){
     var v = val(D.regions[f.c], st.metric, st.period);
-    var dim = !!(st.q && f.nm.indexOf(st.q)<0 && f.sido.indexOf(st.q)<0);
     var out = !inView(f);
     if(out) outN++;
-    paintOne(pathByCol, f, v, dim, out);
-    // 인셋은 본 지도의 뷰 밖 판정을 따르지 않는다 — 서울·인천은 언제나 색을 준다
-    var inInset = !!(sidos && sidos.indexOf(f.sido)>=0);
-    if(inInset) paintOne(ipathByCol, f, v, dim, false);
-    off[f.c] = dim || out;
-    // 인셋이 대신 라벨을 보여주는 시도는 본 지도에 색만 남기고 글자는 뺀다(겹쳐 보이는 문제 방지)
-    if(!off[f.c] && !inInset) main.push(f);
+    paintOne(pathByCol, f, v, false, out);
+    if(!out) main.push(f);
   });
   var v0 = curView();
-  // 활발도 원 — 라벨과 무관하게, 보이는 전부(인셋에 넘긴 서울·인천 포함)에 그린다.
-  // 155개를 다 라벨링하는 대신 이걸로 "여기가 시장이 큰 곳"을 보여준다.
-  var visible = D.geo.kb.filter(function(f){ return !off[f.c] });
-  paintDots(visible, v0);
+  paintDots(main, v0);
   var hid = placeLabels(svgEl, labEl, v0, main, false);
-
-  // 인셋 배치·표시
-  var zoomBox = document.getElementById('zoombox');
-  if(sidos){
-    var iv = insetView(sidos);
-    if(iv){
-      if(zoomBox) zoomBox.setAttribute('d',
-        'M'+iv[0]+' '+(-iv[3])+'L'+iv[2]+' '+(-iv[3])+'L'+iv[2]+' '+(-iv[1])+'L'+iv[0]+' '+(-iv[1])+'Z');
-
-      setViewBox(isvgEl, iv);
-      var wide = st.region==='전국' ? 22 : 26;
-      insetEl.style.width = wide+'%';
-      insetEl.style.maxWidth = '230px';
-      // 전국은 우상단(동해), 수도권·경기는 좌하단(서해) 이 비어 있다
-      if(st.region==='전국'){ insetEl.style.right='8px'; insetEl.style.top='8px';
-        insetEl.style.left='auto'; insetEl.style.bottom='auto' }
-      else { insetEl.style.left='8px'; insetEl.style.bottom='8px';
-        insetEl.style.right='auto'; insetEl.style.top='auto' }
-      document.getElementById('ihd').textContent = sidos.join('·')+' 확대 (면적 작아 본 지도에서 안 보임)';
-      insetEl.classList.remove('hide');
-      var ifeats = D.geo.kb.filter(function(f){ return sidos.indexOf(f.sido)>=0 && !off[f.c] });
-      // off 에는 뷰 밖 판정이 섞여 있다(전국 뷰가 아니면 서울·인천도 out 처리될 수 있음) → 검색만 반영
-      ifeats = D.geo.kb.filter(function(f){ return sidos.indexOf(f.sido)>=0
-        && !(st.q && f.nm.indexOf(st.q)<0 && f.sido.indexOf(st.q)<0) });
-      placeLabels(isvgEl, ilabEl, iv, ifeats, true);
-    } else { insetEl.classList.add('hide'); if(zoomBox) zoomBox.setAttribute('d','') }
-  } else { insetEl.classList.add('hide'); if(zoomBox) zoomBox.setAttribute('d','') }
-
   var el = document.getElementById('labnote');
   if(el){
-    var msg = ['숫자 = 변동률(%) · 주황 글씨 = 상승, 파랑 글씨 = 하락. 클릭하면 매매·전세 추이 그래프가 나옵니다.'];
-    if(hid > 0) msg.push(hid+'곳은 자리가 없어 숫자를 생략했습니다 — 클릭·호버로 확인하세요.');
+    var msg = ['색·구간은 KB 원본 그대로이고, 그 위에 변동률(%) 숫자를 함께 표시합니다. 클릭하면 매매·전세 추이 그래프가 나옵니다.'];
+    if(hid > 0) msg.push('전국 지도에서 '+hid+'곳은 자리가 없어 숫자를 생략했습니다 — 아래 그룹별 확대 지도에서 보세요.');
     if(outN > 0) msg.push('회색 = KB 미조사 시군구.');
     el.textContent = msg.join(' ');
   }
@@ -388,25 +426,31 @@ function placeLabels(sv, lb, v, feats, small){
     if(!mode){ bw = vw2; bh = vh2; if(fits(it.x,it.y,bw,bh)) mode='value' }
     if(!mode) return;
     placed.push({x:it.x, y:it.y, w:bw, h:bh});
-    // 배경이 이제 흰색 고정(음영 없음)이라 대비 걱정 없이 방향색만 숫자에 준다
-    var vcolor = it.value==null ? '#98a0ac' : (it.value>0 ? '#b35900' : (it.value<0 ? '#2f5f9e' : '#3b4553'));
-    html += '<div class="lab" style="left:'+it.x.toFixed(1)+'px;top:'+it.y.toFixed(1)+'px;color:#1b2330;'
-      + 'text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 2px #fff'
+    // KB 색으로 칠한 위에 숫자를 얹으므로, 진한 칸(3단계 이상)에서는 흰 글씨로 뒤집어야 읽힌다
+    var dark = it.value!=null && level(it.value) >= 3;
+    html += '<div class="lab" style="left:'+it.x.toFixed(1)+'px;top:'+it.y.toFixed(1)+'px;color:'
+      + (dark ? '#fff' : '#1b2330') + ';text-shadow:'
+      + (dark ? '0 0 3px rgba(0,0,0,.65),0 0 2px rgba(0,0,0,.65)' : '0 0 3px #fff,0 0 3px #fff,0 0 2px #fff')
       + '">' + (mode==='full' ? '<span class="ln">'+nTxt+'</span>' : '')
-      + '<span class="lv" style="color:'+vcolor+'">'+vTxt+'</span></div>';
+      + '<span class="lv">'+vTxt+'</span></div>';
   });
   lb.innerHTML = html;
   return items.filter(function(i){return i.size>=14}).length - placed.length;
 }
 
 // 간단 모드: 색 띠 하나 + 양끝 숫자만. 자세히 모드: 구간별 수치 전부.
-/* 음영(그라데이션) 없이 숫자 자체를 색으로 구분한다 — placeLabels의 vcolor 배색과 맞춰둔다 */
+/* 범례 — KB 원본 8단계 구간을 그대로 표시 */
 function legendHTML(){
-  return '<span style="font-size:11.5px;color:#5d6878">숫자 색:</span>'
-    + '<span style="color:#b35900;font-weight:700;margin-left:4px">■ 상승</span>'
-    + '<span style="color:#2f5f9e;font-weight:700;margin-left:8px">■ 하락</span>'
-    + '<span style="color:#3b4553;font-weight:700;margin-left:8px">■ 보합(0.00)</span>'
-    + '<span style="font-size:11.5px;color:#5d6878;margin-left:10px">회색 배경 = KB 미조사 시군구</span>';
+  var b = bands(), i, h = '';
+  function lo(lv){ return b[lv-1] } function hi(lv){ return lv===4?null:b[lv] }
+  for(i=4;i>=1;i--){ var t = hi(i)==null ? '+'+lo(i).toFixed(2)+' 이상' : '+'+lo(i).toFixed(2)+'~'+hi(i).toFixed(2);
+    h += '<span class="lg"><i class="sw" style="background:'+POS[i]+'"></i>'+t+'</span>' }
+  h += '<span class="lg"><i class="sw" style="background:#fff"></i>±'+b[0].toFixed(2)+' 이내</span>';
+  for(i=1;i<=4;i++){ var t2 = hi(i)==null ? '−'+lo(i).toFixed(2)+' 이하' : '−'+hi(i).toFixed(2)+'~−'+lo(i).toFixed(2);
+    h += '<span class="lg"><i class="sw" style="background:'+NEG[i]+'"></i>'+t2+'</span>' }
+  h += '<span class="lg"><i class="sw" style="background:#dde2e9"></i>KB 미조사</span>';
+  h += '<span class="lg" style="color:#5d6878">색·구간 = KB 원본 그대로</span>';
+  return h;
 }
 
 /* ── ㎡당 실제 가격 (KB 월간). 지방 도 시군구는 KB 미수록이라 없을 수 있다 ── */
@@ -540,7 +584,7 @@ function hideTip(){ if(tip) tip.style.display='none' }
 
 function render(){
   document.getElementById('legend').innerHTML = legendHTML();
-  applyView(); paintMap();
+  applyView(); paintMap(); paintMiniMaps();
   document.getElementById('mtitle').textContent = 'KB 주간 시세동향 — '
     + METRIC_LBL[st.metric] + ' ' + PERIOD_LBL[st.period] + ' 변동률(%)';
 }
