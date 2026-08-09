@@ -80,11 +80,19 @@ main{padding:16px 18px 40px;display:flex;flex-direction:column;gap:14px}
 .pair{display:grid;grid-template-columns:1fr 1fr}
 .half{min-width:0}
 .half + .half{border-left:2px solid #1b2330}
+/* KB 배포 지도처럼 진한 남색 제목 띠 */
 .halfhd{display:flex;justify-content:space-between;gap:6px;align-items:baseline;
- font-size:12px;font-weight:800;color:#39424f;background:#f7f9fc;
- border-bottom:1px solid #ccd2dc;padding:4px 9px}
-.halfhd .mv{font-variant-numeric:tabular-nums;font-size:13.5px}
+ font-size:12.5px;font-weight:800;color:#fff;background:#2b3a55;padding:6px 10px}
+.halfhd .mv{font-variant-numeric:tabular-nums;font-size:13.5px;color:#fff}
 .minihd .cnt{font-weight:400;font-size:11px;color:var(--mut)}
+/* 지도 안 범례 — 그 지도에 실제로 나온 구간만 (KB 배포 이미지와 같은 방식) */
+.mlgd{position:absolute;left:8px;top:8px;background:rgba(255,255,255,.92);
+ border:1px solid #ccd2dc;border-radius:5px;padding:5px 7px;font-size:9.5px;line-height:1.5;
+ pointer-events:none;color:#39424f}
+.mlgd .t{font-weight:800;margin-bottom:2px;font-size:9.5px}
+.mlgd div{white-space:nowrap}
+.mlgd i{width:14px;height:9px;border:1px solid #9aa4b2;display:inline-block;
+ border-radius:2px;margin-right:5px;vertical-align:-1px}
 .minipanel{background:#fff;border:2px solid #1b2330;border-radius:6px;overflow:hidden}
 .minihd{font-size:13.5px;font-weight:800;color:#1b2330;background:#eef2f7;
  border-bottom:2px solid #1b2330;padding:6px 10px;display:flex;justify-content:space-between;gap:6px}
@@ -252,7 +260,10 @@ function level(v){ var b=bands(), a=Math.abs(v), lv=0;
 function tone(v){
   if(v==null||isNaN(v)) return {bg:'#e6e9ee', fg:'#98a0ac'};
   var lv=level(v);
-  if(lv===0) return {bg:'#ffffff', fg:'#3b4553'};
+  // ±구간(변동 거의 없음)은 xlsx 조건부서식상 '채움 없음'이지만, 흰 배경 위에 흰색으로 두면
+  // 그 시군구만 빈칸처럼 보여 지도가 성기게 읽힌다. KB가 배포하는 지도 이미지도 이 구간을
+  // 옅은 회색으로 칠한다 → 배포본 기준을 따른다. 구간 경계(0.2/0.4/0.6/0.8)는 원본 그대로.
+  if(lv===0) return {bg:'#efeeec', fg:'#3b4553'};
   return v>0 ? {bg:POS[lv],fg:FG[lv]} : {bg:NEG[lv],fg:FGN[lv]};
 }
 
@@ -360,12 +371,13 @@ var METRICS = [{k:'m', lbl:'매매'}, {k:'j', lbl:'전세'}];
 function buildMiniPanels(){
   function half(s, mk){
     return '<div class="half">'
-      + '<div class="halfhd"><span>'+mk.lbl+'</span>'
+      + '<div class="halfhd"><span>'+s+' '+mk.lbl+'가격 변동률</span>'
       + '<span class="mv" data-mv="'+s+'|'+mk.k+'"></span></div>'
       + '<div class="minibody">'
       + '<svg class="minisvg" data-sido="'+s+'" data-metric="'+mk.k+'" xmlns="http://www.w3.org/2000/svg" '
       + 'preserveAspectRatio="xMidYMid meet">' + kbPathTags([s]) + '</svg>'
-      + '<div class="minilabels"></div></div></div>';
+      + '<div class="minilabels"></div>'
+      + '<div class="mlgd" data-lg="'+s+'|'+mk.k+'"></div></div></div>';
   }
   function panel(s){
     var n = 0; D.geo.kb.forEach(function(f){ if(f.sido===s) n++ });
@@ -407,7 +419,31 @@ function paintMiniMaps(){
         var col = SIDOCOL[s], r = col!=null ? D.regions[col] : null;
         var agg = r ? val(r, mk.k, st.period) : null;
         mv.textContent = fmt(agg);
-        mv.style.color = agg==null ? '#98a0ac' : (agg>0 ? '#b35900' : (agg<0 ? '#2f5f9e' : '#3b4553'));
+      }
+      // 지도 안 범례 — 이 지도에 실제로 나온 구간만 (전 구간 다 띄우면 대부분 빈칸이라 방해만 된다)
+      var lg = document.querySelector('[data-lg="'+key+'"]');
+      if(lg){
+        var b = bands(), seen = {};
+        feats.forEach(function(f){
+          var vv = val(D.regions[f.c], mk.k, st.period);
+          if(vv==null) { seen['na']=1; return }
+          var lv = level(vv);
+          seen[(lv===0 ? 0 : (vv>0?1:-1)*lv)] = 1;
+        });
+        function rng(sig){
+          if(sig===0) return '±'+b[0].toFixed(2)+' 이내';
+          var a2=Math.abs(sig), lo=b[a2-1], hi=a2===4?null:b[a2];
+          var sgn = sig>0 ? '+' : '−';
+          return hi==null ? sgn+lo.toFixed(2)+' 이상' : sgn+lo.toFixed(2)+'~'+sgn+hi.toFixed(2);
+        }
+        var order = [4,3,2,1,0,-1,-2,-3,-4].filter(function(k){ return seen[k] });
+        var h = '<div class="t">'+mk.lbl+' 변동률 (%)</div>';
+        order.forEach(function(k){
+          var c = k===0 ? '#efeeec' : (k>0 ? POS[k] : NEG[-k]);
+          h += '<div><i style="background:'+c+'"></i>'+rng(k)+'</div>';
+        });
+        if(seen['na']) h += '<div><i style="background:#dde2e9"></i>확인 불가</div>';
+        lg.innerHTML = h;
       }
     });
   });
