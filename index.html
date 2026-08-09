@@ -184,10 +184,12 @@ select.sidosel{border:1px solid var(--bd);border-radius:14px;padding:3px 9px;
 </style>
 <header>
  <h1>KB 주간 아파트 시세동향 — 2026-08-03 기준</h1>
- <div class="lead">숫자는 <b>변동률(%)</b>.
-  <b style="background:#FF9C19;padding:1px 6px;border-radius:3px;color:#3b2400">주황 = 올랐음</b>
-  <b style="background:#678FD7;padding:1px 6px;border-radius:3px;color:#fff">파랑 = 내렸음</b>
-  — 색 기준은 KB 원본 그대로. 지역을 <b>클릭</b>하면 자세히 나옵니다.</div>
+ <div class="lead">숫자는 <b>변동률(%)</b> · 모두 KB 주간시계열 파일 값 그대로입니다. 지역을 <b>클릭</b>하면 자세히 나옵니다.<br>
+  <span style="font-size:12px;color:#39424f">색은 두 가지를 씁니다 —
+  <b style="background:#c0392b;padding:1px 6px;border-radius:3px;color:#fff">적색 상승</b>
+  <b style="background:#2f5f9e;padding:1px 6px;border-radius:3px;color:#fff">청색 하락</b> 은 아래 <b>시도별 보드</b>,
+  <b style="background:#FF9C19;padding:1px 6px;border-radius:3px;color:#3b2400">주황 상승</b>
+  <b style="background:#678FD7;padding:1px 6px;border-radius:3px;color:#fff">파랑 하락</b> 은 <b>시군구 지도</b>(KB xlsx 조건부서식 원본 색).</span></div>
  <details class="det"><summary>데이터 출처와 주의사항</summary>
   <div class="meta">
    시세: KB부동산 <code>20260803_주간시계열.xlsx</code> [1.매매증감][2.전세증감][3.매매지수][4.전세지수][5.매수우위][7.전세수급] · 2021-01-04~ 281주 · 조회 2026-08-09<br>
@@ -329,13 +331,21 @@ var METRICS = [{k:'m', lbl:'매매'}, {k:'j', lbl:'전세'}];
    ⚠ 시도 단위는 시군구보다 값이 훨씬 작다(전국이 서로 상쇄되므로). 시군구용 KB 구간
    (±0.2/0.4/0.6/0.8)을 그대로 쓰면 17개가 거의 다 무색이 된다 → KB가 시도별 지도에 쓰는
    ±0.25 / ±0.50 5단계를 쓴다. 색은 KB xlsx 팔레트에서 가져왔다. */
+/* 상승=적색 / 하락=청색 (한국 관례). 진한 두 단계에서는 글자를 흰색으로 뒤집는다. */
 var SIDO_BANDS = [
-  { min: 0.50,  c:'#FF9C19', lbl:'+0.50 이상' },
-  { min: 0.25,  c:'#FCD5B5', lbl:'+0.25 ~ +0.50' },
-  { min:-0.25,  c:'#efeeec', lbl:'±0.25 이내' },
-  { min:-0.50,  c:'#DBEEF4', lbl:'−0.50 ~ −0.25' },
-  { min:-1e9,   c:'#678FD7', lbl:'−0.50 이하' },
+  { min: 0.50,  c:'#e34948', dark:true,  lbl:'+0.50 이상' },
+  { min: 0.25,  c:'#f5bcbb', dark:false, lbl:'+0.25 ~ +0.50' },
+  { min:-0.25,  c:'#efeeec', dark:false, lbl:'±0.25 이내' },
+  { min:-0.50,  c:'#9ec5f4', dark:false, lbl:'−0.50 ~ −0.25' },
+  { min:-1e9,   c:'#2a78d6', dark:true,  lbl:'−0.50 이하' },
 ];
+var UPC = '#c0392b', DNC = '#2f5f9e';        // 숫자·막대 색 (상승 적 / 하락 청)
+function signColor(v){ return v==null ? '#98a0ac' : (v>0 ? UPC : (v<0 ? DNC : '#3b4553')) }
+function sidoDark(v){
+  if(v==null||isNaN(v)) return false;
+  for(var i=0;i<SIDO_BANDS.length;i++) if(v >= SIDO_BANDS[i].min) return !!SIDO_BANDS[i].dark;
+  return false;
+}
 function sidoTone(v){
   if(v==null||isNaN(v)) return '#dde2e9';
   for(var i=0;i<SIDO_BANDS.length;i++) if(v >= SIDO_BANDS[i].min) return SIDO_BANDS[i].c;
@@ -381,8 +391,9 @@ function buildBoards(){
       + '<span class="bagg" data-bagg="'+mk.k+'"></span></div>'
       + '<div class="boardbody">'
       + '<div class="barsbox"><div data-bars="'+mk.k+'"></div>'
-      + '<div class="barlgd"><span><i style="background:#c3c2b7"></i>지난주</span>'
-      + '<span><i style="background:#2b3a55"></i>이번주</span></div></div>'
+      + '<div class="barlgd"><span><i style="background:#c0392b;opacity:.45"></i>지난주(옅게)</span>'
+      + '<span><i style="background:#c0392b"></i>이번주 상승</span>'
+      + '<span><i style="background:#2f5f9e"></i>이번주 하락</span></div></div>'
       + '<div class="natbox">'
       + '<svg class="natsvg" data-metric="'+mk.k+'" xmlns="http://www.w3.org/2000/svg" '
       + 'preserveAspectRatio="xMidYMid meet" viewBox="'+nat[0]+' '+(-nat[3])+' '
@@ -429,18 +440,18 @@ function paintBoards(){
       return y-x;
     });
     var h = rows.map(function(s){
-      function bar(v, cls, color){
+      // 막대 색은 그 값의 부호로 정한다(상승 적 / 하락 청). 지난주는 같은 색을 옅게.
+      function bar(v, cls){
         if(v==null) return '';
         var pct = Math.min(50, Math.abs(v)/mx*50);
         return '<div class="bf '+cls+'" style="'+(v>=0?'left:50%;':'right:50%;')
-          + 'width:'+pct.toFixed(1)+'%;background:'+color+'"></div>';
+          + 'width:'+pct.toFixed(1)+'%;background:'+(v>=0?UPC:DNC)+'"></div>';
       }
       var v = cur[s];
-      var vc = v==null ? '#98a0ac' : (v>0 ? '#b35900' : (v<0 ? '#2f5f9e' : '#3b4553'));
       return '<div class="barrow" data-c="'+(SIDOCOL[s]!=null?SIDOCOL[s]:'')+'">'
         + '<div class="bn">'+s+'</div>'
-        + '<div class="bt">'+bar(prv[s],'prev','#c3c2b7')+bar(v,'cur','#2b3a55')+'</div>'
-        + '<div class="bv" style="color:'+vc+'">'+fmt(v)+'</div></div>';
+        + '<div class="bt">'+bar(prv[s],'prev')+bar(v,'cur')+'</div>'
+        + '<div class="bv" style="color:'+signColor(v)+'">'+fmt(v)+'</div></div>';
     }).join('');
     document.querySelector('[data-bars="'+mk.k+'"]').innerHTML = h;
     // 전국 합계
@@ -473,9 +484,12 @@ function placeSidoLabels(sv, lb, v, feats){
     x=Math.max(ox+bw/2+2, Math.min(ox+vw*sc-bw/2-2, x));
     y=Math.max(oy+bh/2+2, Math.min(oy+vh*sc-bh/2-2, y));
     placed.push({x:x,y:y,w:bw,h:bh});
-    html += '<div class="lab" style="left:'+x.toFixed(1)+'px;top:'+y.toFixed(1)+'px;color:#000;'
-      + 'text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 2px #fff">'
-      + '<span class="ln">'+f.nm+'</span><span class="lv">'+fmt(f._v)+'</span></div>';
+    // 진한 적/청 칸 위에서는 검은 글씨가 안 읽힌다 → 흰색으로 뒤집는다
+    var dk = sidoDark(f._v);
+    html += '<div class="lab" style="left:'+x.toFixed(1)+'px;top:'+y.toFixed(1)+'px;color:'
+      + (dk ? '#fff' : '#000') + ';text-shadow:'
+      + (dk ? '0 0 3px rgba(0,0,0,.7),0 0 2px rgba(0,0,0,.7)' : '0 0 3px #fff,0 0 3px #fff,0 0 2px #fff')
+      + '"><span class="ln">'+f.nm+'</span><span class="lv">'+fmt(f._v)+'</span></div>';
   });
   lb.innerHTML = html;
 }
