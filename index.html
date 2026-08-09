@@ -54,7 +54,7 @@ main{padding:16px 18px 40px;display:flex;flex-direction:column;gap:14px}
 .boardbody > * + *{border-left:1px solid #ccd2dc}
 @media (max-width:900px){ .boardbody{grid-template-columns:1fr}
   .boardbody > * + *{border-left:0;border-top:1px solid #ccd2dc} }
-.barsbox{padding:10px 12px 8px}
+.barsbox{padding:10px 12px 8px;align-self:start}
 .barrow{display:grid;grid-template-columns:56px 1fr 52px;align-items:center;gap:7px;margin-bottom:2px;
  cursor:pointer;border-radius:3px}
 .barrow:hover{background:#f4f7fb}
@@ -66,8 +66,9 @@ main{padding:16px 18px 40px;display:flex;flex-direction:column;gap:14px}
 .barrow .bv{font-size:11.5px;font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
 .barlgd{font-size:10.5px;color:var(--mut);margin-top:6px;display:flex;gap:12px;flex-wrap:wrap}
 .barlgd i{width:16px;height:5px;border-radius:1px;display:inline-block;margin-right:5px;vertical-align:2px}
-.natbox{position:relative;padding:6px}
-.natsvg{display:block;width:100%;height:auto;max-height:66vh}
+/* 지도는 세로로 긴 한반도라 폭을 다 쓰면 위아래가 남는다 → 높이를 잡고 가운데 정렬 */
+.natbox{position:relative;padding:6px;display:flex;align-items:center;justify-content:center}
+.natsvg{display:block;width:auto;height:auto;max-width:100%;max-height:62vh;margin:0 auto}
 .natsvg path{cursor:pointer}
 .natlabels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .natlabels .lab .ln{font-size:12px;font-weight:900}
@@ -356,9 +357,16 @@ var SIDOGEO = null;
 function buildSidoGeo(){
   var g = {};
   function add(sd, d, pts){
-    if(!g[sd]) g[sd] = { d:[], sx:0, sy:0, n:0 };
+    if(!g[sd]) g[sd] = { d:[], sx:0, sy:0, n:0, bb:[1e18,1e18,-1e18,-1e18] };
     g[sd].d.push(d);
-    for(var i=0;i<pts.length;i+=2){ g[sd].sx += pts[i]; g[sd].sy += pts[i+1]; g[sd].n++ }
+    var b = g[sd].bb;
+    for(var i=0;i<pts.length;i+=2){
+      g[sd].sx += pts[i]; g[sd].sy += pts[i+1]; g[sd].n++;
+      if(pts[i]<b[0]) b[0]=pts[i];
+      if(pts[i+1]<b[1]) b[1]=pts[i+1];
+      if(pts[i]>b[2]) b[2]=pts[i];
+      if(pts[i+1]>b[3]) b[3]=pts[i+1];
+    }
   }
   function decode(r){                       // 델타 인코딩 → 절대좌표 배열
     var out=[], px=0, py=0;
@@ -370,8 +378,19 @@ function buildSidoGeo(){
   }
   D.geo.kb.forEach(function(f){ f.r.forEach(function(r){ add(f.sido, ringPath(r), decode(r)) }) });
   (D.geo.ctx||[]).forEach(function(f){ f.r.forEach(function(r){ add(f.sido, ringPath(r), decode(r)) }) });
-  Object.keys(g).forEach(function(s){ g[s].cx = g[s].sx/g[s].n; g[s].cy = g[s].sy/g[s].n });
+  Object.keys(g).forEach(function(s){
+    g[s].cx = g[s].sx/g[s].n; g[s].cy = g[s].sy/g[s].n;
+    // 미니지도 프레임 — D.geo.views[]는 KB 조사 지역만으로 잡힌 범위라, 미조사 폴리곤을 함께
+    // 그리면 밖으로 삐져나가 잘린다(9개 시도에서 실제 발생). 전체 폴리곤 기준으로 다시 잡는다.
+    var b = g[s].bb, mx = (b[2]-b[0])*0.03, my = (b[3]-b[1])*0.03;
+    g[s].view = [b[0]-mx, b[1]-my, b[2]+mx, b[3]+my];
+  });
   SIDOGEO = g;
+}
+/* 미니지도가 쓸 프레임 — 전체 폴리곤 기준(잘림 방지) */
+function sidoView(s){
+  if(!SIDOGEO) buildSidoGeo();
+  return (SIDOGEO[s] && SIDOGEO[s].view) || D.geo.views[s];
 }
 function buildBoards(){
   if(!SIDOGEO) buildSidoGeo();
@@ -497,6 +516,7 @@ function placeSidoLabels(sv, lb, v, feats){
 /* 확대 미니지도 틀 만들기 — DOM은 한 번만 짓고, 값은 매번 paintMiniMaps() 가 덮어쓴다.
    시도마다 매매·전세 지도를 나란히 둔다(둘을 번갈아 보지 않고 한 번에 비교하려고). */
 function buildMiniPanels(){
+  if(!SIDOGEO) buildSidoGeo();
   function half(s, mk){
     return '<div class="half">'
       + '<div class="halfhd"><span>'+s+' '+mk.lbl+'가격 변동률</span>'
@@ -526,13 +546,13 @@ function buildMiniPanels(){
     var key = sv.dataset.sido + '|' + sv.dataset.metric, m = {};
     sv.querySelectorAll('[data-c]').forEach(function(p){ m[p.dataset.c] = p });
     miniPath[key] = m;
-    setViewBox(sv, D.geo.views[sv.dataset.sido]);
+    setViewBox(sv, sidoView(sv.dataset.sido));
   });
 }
 /* 확대 미니지도 칠하기 + 시군구 전부 라벨링(개수가 적어 안 겹친다) */
 function paintMiniMaps(){
   ZOOM_ALL.forEach(function(s){
-    var v = D.geo.views[s]; if(!v) return;
+    var v = sidoView(s); if(!v) return;
     var feats = D.geo.kb.filter(function(f){ return f.sido===s });
     METRICS.forEach(function(mk){
       var key = s + '|' + mk.k; if(!miniPath[key]) return;
